@@ -19,7 +19,6 @@ sys.path.append(os.getcwd())
 from tflib import plot, params_with_name, analysis
 from tflib.ops import linear, act_funct, conv1d_II, deconv1d_II
 from tensorflow.python.framework import ops as options
-#from tensorflow.python.client import timeline
 import matplotlib.pyplot as plt
 
 #parameters used for figures
@@ -62,7 +61,7 @@ class WGAN_conv(object):
     self.z_dim = z_dim #latent space dimension
     self.num_layers = num_layers
     self.width_kernel = kernel_width # in the time dimension
-    self.num_features = num_features #num features in the first layer of critic (this number will be duplicated in each succesive layer)
+    self.num_features = num_features #num features in the first layer of critic (this number will be duplicated in each succesive layer) [note: this is actually half of the number of features in the first generator layer]
     #folders
     self.checkpoint_dir = checkpoint_dir
     self.sample_dir = sample_dir
@@ -75,11 +74,11 @@ class WGAN_conv(object):
     #real samples    
     self.inputs = tf.placeholder(tf.float32, name='real_data', shape=[self.batch_size, self.num_neurons*self.num_bins])
     #fake samples
-    self.sample_inputs = self.Generator(self.batch_size)
+    self.sample_inputs = self.Generator(self.batch_size,print_arch=True)
     self.ex_samples = self.get_samples()
     
     #discriminator output
-    self.disc_real = self.Discriminator(self.inputs)
+    self.disc_real = self.Discriminator(self.inputs,print_arch=True)
     self.disc_fake = self.Discriminator(self.sample_inputs)
 
     #generator and discriminator cost
@@ -110,24 +109,21 @@ class WGAN_conv(object):
     tf.global_variables_initializer().run()
       
     #try to load trained parameters
+    print('-------------')
     existing_gan, ckpt_name = self.load()
-    
-    
     
     #count number of variables
     total_parameters = 0
     for variable in tf.trainable_variables():
         # shape is an array of tf.Dimension
         shape = variable.get_shape()
-        
-        print(variable.name)
-        print(shape)
         variable_parameters = 1
         for dim in shape:
             variable_parameters *= dim.value
         total_parameters += variable_parameters
+    print('-------------')
     print('number of varaibles: ' + str(total_parameters))
-    
+    print('-------------')
     #start training
     counter_batch = 0
     epoch = 0
@@ -218,9 +214,8 @@ class WGAN_conv(object):
         return self.FCDiscriminator, self.FCGenerator, self.FCDiscriminator_sampler     
   
   #####################convolutional GAN
-    
   # Discriminator
-  def DCGANDiscriminator(self, inputs):
+  def DCGANDiscriminator(self, inputs, print_arch=False):
     kernel_width = self.width_kernel # in the time dimension
     num_features = self.num_features
     #neurons are treated as different channels
@@ -228,24 +223,25 @@ class WGAN_conv(object):
     conv1d_II.set_weights_stdev(0.02)
     deconv1d_II.set_weights_stdev(0.02)
     linear.set_weights_stdev(0.02)
-    print('DISCRIMINATOR. -------------------------------')
-    print((output.get_shape()))
-    print('0. -------------------------------')
+    if print_arch:
+        print('DISCRIMINATOR. -------------------------------')
+        print(str(output.get_shape())+' input')
     for ind_l in range(self.num_layers):
         if ind_l==0:
             output = conv1d_II.Conv1D('Discriminator.'+str(ind_l+1), self.num_neurons, num_features*2**(ind_l+1),kernel_width, output, stride=self.stride)
         else:
             output = conv1d_II.Conv1D('Discriminator.'+str(ind_l+1), num_features*2**(ind_l), num_features*2**(ind_l+1), kernel_width, output, stride=self.stride)
         output = act_funct.LeakyReLU(output)
-        print((output.get_shape()))
-        print(str(ind_l+1)+'. -------------------------------')
+        if print_arch:
+            print(str(output.get_shape()) + ' layer '+ str(ind_l+1))
+        
         
     output = tf.reshape(output, [-1, int(num_features*self.num_bins)])
-    print((output.get_shape()))
-    print('5. -------------------------------')
+    if print_arch:
+        print(str(output.get_shape()) + ' fully connected layer')
     output = linear.Linear('Discriminator.Output', int(num_features*self.num_bins), 1, output)
-    print((output.get_shape()))
-    print('6. -------------------------------')
+    if print_arch:
+        print(str(output.get_shape()) + ' output')
     conv1d_II.unset_weights_stdev()
     deconv1d_II.unset_weights_stdev()
     linear.unset_weights_stdev()
@@ -286,7 +282,7 @@ class WGAN_conv(object):
       return tf.reshape(output, [-1]), filters_mat, out_puts_mat
   
   #Generator
-  def DCGANGenerator(self, n_samples, noise=None):
+  def DCGANGenerator(self, n_samples, noise=None, print_arch=False):
       kernel_width = self.width_kernel # in the time dimension
       num_features = self.num_features
       conv1d_II.set_weights_stdev(0.02)
@@ -295,15 +291,16 @@ class WGAN_conv(object):
       
       if noise is None:
           noise = tf.random_normal([n_samples, 128])
-        
+      if print_arch:
+          print('GENERATOR. -------------------------------')
+          print(str(noise.get_shape()) + ' latent variable')
       output = linear.Linear('Generator.Input', 128,int(num_features*self.num_bins), noise)
-      print('GENERATOR. -------------------------------')
-      print((output.get_shape()))
-      print('0. -------------------------------')
+      if print_arch:
+          print(str(output.get_shape()) + ' linear projection')
       output = tf.reshape(output, [-1, num_features*2**self.num_layers, int(self.num_bins/2**self.num_layers)])
       output = act_funct.LeakyReLU(output)
-      print((output.get_shape()))
-      print('1. -------------------------------')
+      if print_arch:
+          print(str(output.get_shape()) + ' layer 1')
       for ind_l in range(self.num_layers,0,-1):
           if ind_l==1:
               output = deconv1d_II.Deconv1D('Generator.'+str(self.num_layers-ind_l+1), num_features*2**ind_l, self.num_neurons,\
@@ -312,8 +309,8 @@ class WGAN_conv(object):
               output = deconv1d_II.Deconv1D('Generator.'+str(self.num_layers-ind_l+1), num_features*2**ind_l, num_features*2**(ind_l-1),\
                                             kernel_width, output, num_bins=int(2**(self.num_layers-ind_l+1)*self.num_bins/2**self.num_layers))
           output = act_funct.LeakyReLU(output)
-          print((output.get_shape()))
-          print(str(self.num_layers-ind_l+1) + '. -------------------------------')
+          if print_arch:
+              print(str(output.get_shape()) + ' layer ' + str(self.num_layers-ind_l+2))
       
    
       output = tf.sigmoid(output)
@@ -322,8 +319,6 @@ class WGAN_conv(object):
       deconv1d_II.unset_weights_stdev()
       linear.unset_weights_stdev()
       output = tf.reshape(output, [-1, self.output_dim])
-      print((output.get_shape()))
-      print('6. -------------------------------')
       
       return output
  

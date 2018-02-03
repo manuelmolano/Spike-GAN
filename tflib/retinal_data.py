@@ -11,8 +11,7 @@ Created on Mon Sep 11 11:31:05 2017
 
 @author: manuel
 """
-import sys, os
-print(os.getcwd())
+import sys#, os
 sys.path.append('/home/manuel/improved_wgan_training/')
 import numpy as np
 import scipy.io as sio

@@ -5,7 +5,6 @@ Created on Fri Sep 15 14:41:38 2017
 @author: manuel
 """
 import sys, os
-print(os.getcwd())
 sys.path.append('/home/manuel/improved_wgan_training/')
 import numpy as np
 import matplotlib.pyplot as plt

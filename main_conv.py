@@ -165,7 +165,7 @@ def main(_):
         if not wgan.load(FLAGS.training_stage):
             raise Exception("[!] Train a model first, then run test mode")      
 
-    #LOAD TRAINING DATASET (and the associated statistics)
+    #LOAD TRAINING DATASET (and its statistics)
     original_dataset = np.load(FLAGS.sample_dir+ '/stats_real.npz')
     
     #PLOT FILTERS
