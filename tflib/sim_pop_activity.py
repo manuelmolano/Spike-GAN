@@ -21,8 +21,10 @@ hspace = 0.4   # the amount of height reserved for white space between subplots
 
 def spike_trains_corr(num_bins=64, num_neurons=32, correlations_mat=np.zeros((16,))+0.5,\
                         group_size=2,refr_per=4,firing_rates_mat=np.zeros((32,))+0.2):
-    #std_resp = 5
-    #noise = np.mean(firing_rates_mat)/2
+    '''
+    Returns an activity pattern (sample) with the required properties (average firing rate, refractory period, neurons correlation...).
+    Firing activity follows a uniform distribution across the sample. Neurons will be correlated in non-overlapping groups of size group_size.
+    '''
     X = np.zeros((num_neurons,num_bins)) 
     
     for ind in range(int(num_neurons/group_size)):
@@ -41,6 +43,12 @@ def spike_trains_corr(num_bins=64, num_neurons=32, correlations_mat=np.zeros((16
 
 
 def spike_train_packets(num_bins=32, num_neurons=16, group_size=4, prob_packets=0.02, firing_rates_mat=np.zeros((16,1))+0.25, refr_per=2, noise=1, number_of_modes=2, save_sample=False, folder='', mode=0):
+    '''
+    Returns an activity pattern (sample) with the required properties (average firing rate, refractory period, neurons correlation...).
+    Firing activity follows a uniform distribution across the sample. Patterns present different packets of activity consisting. 
+    The number of neurons participating in each packet is given by group_size.
+    If num_of_modes=2, there will be two types of packets, simulating the response to two different stimuli (Fig. S2).
+    '''
     X = ((np.zeros((num_neurons,num_bins)) + firing_rates_mat) > np.random.random((num_neurons,num_bins))).astype('int32')
     for ind_n in range(num_neurons):
         X[ind_n,:] = refractory_period(refr_per, X[ind_n,:].reshape(1,num_bins), firing_rates_mat[ind_n])
@@ -74,6 +82,9 @@ def spike_train_packets(num_bins=32, num_neurons=16, group_size=4, prob_packets=
     return result, mode_switch+1
    
 def noisy_packet(size,noise,prob=1):
+    '''
+    Introduces some jitter in the spikes forming the packet
+    '''
     packet = np.zeros((size,size))
     for ind in range(size):
         if prob>np.random.random():

@@ -13,6 +13,9 @@ from tflib import sim_pop_activity, retinal_data, analysis
 
 
 def generate_spike_trains(config, recovery_dir):
+    '''
+    this function returns the training and dev sets, corresponding to the parameters provided in config
+    '''
     if config.dataset=='uniform':
         if recovery_dir!="":
             aux = np.load(recovery_dir+ '/stats_real.npz')
