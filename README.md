@@ -2,6 +2,8 @@
 
 Tensorflow implementation of Spike-GAN, which allows generating realistic patterns of neural activity whose statistics approximate a given traing dataset ([Molano-Mazon et al. 2018 ICRL2018](https://openreview.net/forum?id=r1VVsebAZ)). 
 
+![alt tag](figs/architecture.png)
+
 ### Prerequisites
 
 * Python 3.5+
