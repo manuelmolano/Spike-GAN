@@ -10,11 +10,11 @@ Tensorflow implementation of Spike-GAN, which allows generating realistic patter
 * SciPy.
 * Matplotlib.
 
-All necessary modules can be install via [Anaconda](https://anaconda.org/). 
+All necessary modules can be installed via [Anaconda](https://anaconda.org/). 
 
 ### Installing
 
-Just download the repository to your computer.
+Just download the repository to your computer and add the Spike-GAN folder to your path.
 
 
 ## Running the tests
@@ -25,4 +25,7 @@ The example below will train Spike-GAN with the semi-convolutional architecture 
 python3.5 main_conv.py --is_train --architecture='conv' --dataset='uniform' --num_bins=12 --num_neurons=2 
 ```
 
+## Authors
 
+* [Arno Onken](https://github.com/asnelt).
+* [Eugenio Piasini](https://github.com/epiasini).
