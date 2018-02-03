@@ -359,19 +359,6 @@ class WGAN_conv(object):
     return output
 
   ######################auxiliary functions
-
-  def binarize(self, samples, threshold=None):
-    '''
-    Returns binarized samples by thresholding with `threshold`. If `threshold` is `None` then the
-    elements of `samples` are used as probabilities for drawing Bernoulli variates.
-    '''
-    if threshold is not None:
-      binarized_samples = samples > threshold
-    else:
-      #use samples as probabilities for drawing Bernoulli random variates
-      binarized_samples = samples > np.random.random(samples.shape)
-    return binarized_samples.astype(float)  
-  
   #draw samples from the generator
   def get_samples(self, num_samples=2**13): 
     #noise = tf.constant(np.random.normal(size=(num_samples, 128)).astype('float32'))
@@ -385,20 +372,12 @@ class WGAN_conv(object):
   
       return filters
   
-  #get units STA from the discriminator
-  def get_units(self, num_samples):
-      #aux = np.load(self.sample_dir+ '/stats_real.npz')
-      noise = tf.constant(((np.zeros((num_samples, self.output_dim)) + 0.5) > np.random.random((num_samples, self.output_dim))).astype('float32'))
-      output,_,units = self.Discriminator_sampler(noise)
-      return output, units, noise  
-  
-  #get units STA from the discriminator
+  #get critic's output
   def get_critics_output(self, samples):
-      #aux = np.load(self.sample_dir+ '/stats_real.npz')
       output,_,_ = self.Discriminator_sampler(samples)
       return output
    
-  #this is to save the network parameters  
+  #this saves the network parameters  
   def save(self, step=0):
     model_name = "WGAN.model"
     self.saver.save(self.sess,os.path.join(self.checkpoint_dir, model_name),global_step=step)
