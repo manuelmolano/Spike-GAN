@@ -15,7 +15,7 @@ import time
 #from sklearn.cluster import KMeans
 import itertools
 import seaborn as sns
-#parameters for figure
+#parameters for figures
 left  = 0.125  # the left side of the subplots of the figure
 right = 0.9    # the right side of the subplots of the figure
 bottom = 0.1   # the bottom of the subplots of the figure
@@ -813,27 +813,28 @@ if __name__ == '__main__':
     closest_sample = nearest_sample(samples, samples, 32, 128, folder='/home/manuel/improved_wgan_training/samples conv/dataset_uniform_num_samples_8192_num_neurons_32_num_bins_128_ref_period_2_firing_rate_0.25_correlation_0.3_group_size_4_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/', name='spikeGAN')
     
     
-    #triplet_corr(samples, 32, 128, '/home/manuel/improved_wgan_training', 'real')
-    asdasd
+    triplet_corr(samples, 32, 128, '/home/manuel/improved_wgan_training', 'real')
+    #asdasd
     
     
     compute_num_variables(num_bins=1000, num_neurons=4, num_features=64, kernel=5, num_units=310)
-    asdasd
+    #asdasd
+    
     folder = '/home/manuel/improved_wgan_training/samples conv/dataset_packets_num_samples_8192_num_neurons_32_num_bins_32_packet_prob_1.0_firing_rate_0.05_group_size_18_noise_in_packet_0.0_number_of_modes_2_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/'
     get_predicted_packets(folder,threshold=80)
-    adasdasd
+    #adasdasd
     
     folder = '/home/manuel/improved_wgan_training/samples conv/dataset_uniform_num_samples_8192_num_neurons_16_num_bins_128_ref_period_2_firing_rate_0.25_correlation_0.3_group_size_2_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/'
     samples = np.load(folder + 'samples_fake.npz')['samples']
     plot_samples(samples=samples, num_neurons=16, num_bins=128, folder=folder)
     
-    asdasd
+    #asdasd
    
     plt.close('all')
     compare_GANs('/home/manuel/improved_wgan_training/', \
                  'samples conv/dataset_retina_num_samples_8192_num_neurons_20_num_bins_32_critic_iters_5_lambda_10_num_layers_*_num_features_*_kernel_*_iteration_*',\
                  ['num_layers','kernel','num_features'])
-    asdasd
+    #asdasd
     
     group_size = 2
     num_neurons = 16
@@ -847,16 +848,9 @@ if __name__ == '__main__':
     np.random.shuffle(shuffled_index)
     firing_rates_mat = firing_rate+2*(np.random.random(int(num_neurons/group_size),)-0.5)*firing_rate/2    
     correlations_mat = correlation+2*(np.random.random(int(num_neurons/group_size),)-0.5)*correlation/2   
-    #peaks of activity
-    #sequence response
-    aux = np.arange(int(num_neurons/group_size))
-    activity_peaks = [[x]*group_size for x in aux]#np.random.randint(0,high=num_bins,size=(1,num_neurons)).reshape(num_neurons,1)
-    activity_peaks = np.asarray(activity_peaks)
-    activity_peaks = activity_peaks.flatten()
-    activity_peaks = activity_peaks*group_size*num_bins/num_neurons
-    activity_peaks = activity_peaks.reshape(num_neurons,1)
+ 
     real_samples = sim_pop_activity.get_samples(num_samples=num_samples, num_bins=num_bins,\
                         num_neurons=num_neurons, correlations_mat=correlations_mat, group_size=group_size, shuffled_index=shuffled_index,\
-                        refr_per=ref_period,firing_rates_mat=firing_rates_mat, activity_peaks=activity_peaks, folder=sample_dir)
+                        refr_per=ref_period,firing_rates_mat=firing_rates_mat, folder=sample_dir)
     
     plot_samples(real_samples, num_neurons, num_bins, sample_dir)

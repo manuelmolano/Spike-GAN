@@ -20,7 +20,7 @@ hspace = 0.4   # the amount of height reserved for white space between subplots
 
 
 def spike_trains_corr(num_bins=64, num_neurons=32, correlations_mat=np.zeros((16,))+0.5,\
-                        group_size=2,refr_per=4,firing_rates_mat=np.zeros((32,))+0.2,activity_peaks=np.zeros((32,1))+32):
+                        group_size=2,refr_per=4,firing_rates_mat=np.zeros((32,))+0.2):
     #std_resp = 5
     #noise = np.mean(firing_rates_mat)/2
     X = np.zeros((num_neurons,num_bins)) 
@@ -36,11 +36,6 @@ def spike_trains_corr(num_bins=64, num_neurons=32, correlations_mat=np.zeros((16
         spike_trains = refractory_period(refr_per,spike_trains,firing_rates_mat[ind])
         X[ind*group_size:(ind+1)*group_size,:] = spike_trains
 
-    #here we use the activity peaks to modulate the firing of neurons    
-    #    t = np.arange(num_bins).reshape(1,num_bins)
-    #    prob_firing = np.exp(-(t-activity_peaks)**2/std_resp**2) + noise #+ np.exp(-(t-activity_peaks*2)**2/std_resp**2)/2 + np.exp(-(t-activity_peaks*3.5)**2/std_resp**2)/1.5 
-    #    X = X*prob_firing
-    #    X = X > np.random.random(X.shape)
     assert np.sum(np.isnan(X.flatten()))==0
     return X.astype(float)
 
@@ -149,7 +144,7 @@ def plot_samples(X, num_neurons, folder, name, index=[]):
     plt.close(f) 
     
 def get_samples(num_samples=2**13,num_bins=64, num_neurons=32, correlations_mat=np.zeros((16,))+0.5, packets_on=False,\
-                group_size=2,refr_per=2,firing_rates_mat=np.zeros((16,))+0.2,activity_peaks=np.zeros((16,))+32, prob_packets=0.05, shuffled_index=np.arange(32), folder='', noise_in_packet=1, number_of_modes=1):                        
+                group_size=2,refr_per=2,firing_rates_mat=np.zeros((16,))+0.2, prob_packets=0.05, shuffled_index=np.arange(32), folder='', noise_in_packet=1, number_of_modes=1):                        
     num_samples_plot = 64
     X = np.zeros((num_neurons*num_bins,num_samples))
     stimulus = np.zeros((num_samples,))
@@ -158,7 +153,7 @@ def get_samples(num_samples=2**13,num_bins=64, num_neurons=32, correlations_mat=
     for ind in range(num_samples):
         if not packets_on:
             sample = spike_trains_corr(num_neurons=num_neurons,num_bins=num_bins, correlations_mat=correlations_mat,\
-                    group_size=group_size, firing_rates_mat=firing_rates_mat, refr_per=refr_per, activity_peaks=activity_peaks)
+                    group_size=group_size, firing_rates_mat=firing_rates_mat, refr_per=refr_per)
         else:
             sample,stimulus[ind] = spike_train_packets(num_bins=num_bins, num_neurons=num_neurons, group_size=group_size, prob_packets=prob_packets, firing_rates_mat=firing_rates_mat, refr_per=refr_per, noise=noise_in_packet, number_of_modes=number_of_modes)
         
@@ -181,14 +176,14 @@ def get_samples(num_samples=2**13,num_bins=64, num_neurons=32, correlations_mat=
     return X
 
 def get_aproximate_probs(num_samples=2**13,num_bins=64, num_neurons=32, correlations_mat=np.zeros((16,))+0.5,\
-                        group_size=2,refr_per=2,firing_rates_mat=np.zeros((16,))+0.2, activity_peaks=np.zeros((16,))+32):
+                        group_size=2,refr_per=2,firing_rates_mat=np.zeros((16,))+0.2):
     X = np.zeros((num_neurons*num_bins,num_samples))
     start_time = time.time()
     for ind in range(num_samples):
         if ind%10000==0:
             print(str(ind) + ' time ' + str(time.time() - start_time))
         sample = spike_trains_corr(num_neurons=num_neurons,num_bins=num_bins, correlations_mat=correlations_mat,\
-                    group_size=group_size, firing_rates_mat=firing_rates_mat, refr_per=refr_per, activity_peaks=activity_peaks)
+                    group_size=group_size, firing_rates_mat=firing_rates_mat, refr_per=refr_per)
         X[:,ind] = sample.reshape((num_neurons*num_bins,-1))[:,0]
     
     
@@ -252,44 +247,10 @@ def refractory_period(refr_per, r, firing_rate):
     
 if __name__ == '__main__':
     plt.close('all')
-    
-#    sample = spike_train_packets(num_bins=64, num_neurons=32, group_size=20, prob_packets=0.2, firing_rates_mat=np.zeros((32,1))+0.1, refr_per=2, noise=1)
-#    f = plt.figure()
-#    plt.imshow(sample,interpolation='nearest')
-#    
+        
     shuffled_index = np.arange(32)
     np.random.shuffle(shuffled_index)
     X = get_samples(num_samples=64,num_bins=32, num_neurons=32, packets_on=True,\
                 group_size=18,firing_rates_mat=np.zeros((32,1))+0.05,shuffled_index=shuffled_index, folder='/home/manuel/improved_wgan_training/pointZeroFive40BinsFlip', noise_in_packet=0, number_of_modes=2)
     
-    #plot_samples(X, 32, '/home/manuel/improved_wgan_training/', 'test', index=shuffled_index)
-    asdasd
-    sample = spike_train_packets()
-    sample[sample==3] = 2
-    f = plt.figure()
-    plt.imshow(sample,interpolation='nearest')
-    plt.colorbar()
-    
-    
-#    asdsadds
-#    
-#    import analysis
-#    num_tr = 1000
-#    num_bins = 64
-#    num_neurons = 32
-#    lag = 10
-#    refr_per_mat = [0.1,0.8,1,1.3,1.6]
-#    f = plt.figure()
-#    for ind_rp in range(len(refr_per_mat)):
-#        X = np.zeros((num_neurons*num_bins,num_tr))
-#        autocorrelogram_mat = np.zeros(2*lag+1)
-#        for ind in range(num_tr):
-#            sample = spike_train_packets(refr_per=refr_per_mat[ind_rp])
-#            X[:,ind] = sample.reshape((num_neurons*num_bins,-1))[:,0]
-#            autocorrelogram_mat += analysis.autocorrelogram(sample,lag=lag)
-#        autocorrelogram_mat = autocorrelogram_mat/np.max(autocorrelogram_mat)
-#        autocorrelogram_mat[lag] = 0 
-#        plt.plot(autocorrelogram_mat)
-#
-
 

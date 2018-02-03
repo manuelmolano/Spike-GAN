@@ -19,36 +19,28 @@ def generate_spike_trains(config, recovery_dir):
             real_samples = aux['samples']
             firing_rates_mat = aux['firing_rate_mat']
             correlations_mat = aux['correlation_mat']
-            activity_peaks = aux['activity_peaks']
             shuffled_index = aux['shuffled_index']
         else:
-            #we shuffle neurons to test if the network still learns the packets
+            #shuffle neurons 
             shuffled_index = np.arange(config.num_neurons)
             np.random.shuffle(shuffled_index)
             firing_rates_mat = config.firing_rate+2*(np.random.random(int(config.num_neurons/config.group_size),)-0.5)*config.firing_rate/2    
             correlations_mat = config.correlation+2*(np.random.random(int(config.num_neurons/config.group_size),)-0.5)*config.correlation/2   
             #peaks of activity
-            #sequence response
             aux = np.arange(int(config.num_neurons/config.group_size))
-            activity_peaks = [[x]*config.group_size for x in aux]#np.random.randint(0,high=config.num_bins,size=(1,config.num_neurons)).reshape(config.num_neurons,1)
-            activity_peaks = np.asarray(activity_peaks)
-            activity_peaks = activity_peaks.flatten()
-            activity_peaks = activity_peaks*config.group_size*config.num_bins/config.num_neurons
-            activity_peaks = activity_peaks.reshape(config.num_neurons,1)
             #peak of activity equal for all neurons 
-            #activity_peaks = np.zeros((config.num_neurons,1))+config.num_bins/4
             real_samples = sim_pop_activity.get_samples(num_samples=config.num_samples, num_bins=config.num_bins,\
                                 num_neurons=config.num_neurons, correlations_mat=correlations_mat, group_size=config.group_size, shuffled_index=shuffled_index,\
-                                refr_per=config.ref_period,firing_rates_mat=firing_rates_mat, activity_peaks=activity_peaks, folder=config.sample_dir)
+                                refr_per=config.ref_period,firing_rates_mat=firing_rates_mat, folder=config.sample_dir)
             
         #save original statistics
         analysis.get_stats(X=real_samples, num_neurons=config.num_neurons, num_bins=config.num_bins, folder=config.sample_dir, shuffled_index=shuffled_index,\
-                           name='real',firing_rate_mat=firing_rates_mat, correlation_mat=correlations_mat, activity_peaks=activity_peaks)
+                           name='real',firing_rate_mat=firing_rates_mat, correlation_mat=correlations_mat)
             
         #get dev samples
         dev_samples = sim_pop_activity.get_samples(num_samples=int(config.num_samples/4), num_bins=config.num_bins,\
                        num_neurons=config.num_neurons, correlations_mat=correlations_mat, group_size=config.group_size, shuffled_index=shuffled_index,\
-                       refr_per=config.ref_period,firing_rates_mat=firing_rates_mat, activity_peaks=activity_peaks)
+                       refr_per=config.ref_period,firing_rates_mat=firing_rates_mat)
         
     elif config.dataset=='packets':
         if recovery_dir!="":
@@ -57,7 +49,7 @@ def generate_spike_trains(config, recovery_dir):
             firing_rates_mat = aux['firing_rate_mat']
             shuffled_index = aux['shuffled_index']
         else:
-            #we shuffle neurons to test if the network still learns the packets
+            #shuffle the neurons 
             shuffled_index = np.arange(config.num_neurons)
             np.random.shuffle(shuffled_index)
             firing_rates_mat = config.firing_rate+2*(np.random.random(size=(config.num_neurons,1))-0.5)*config.firing_rate/2 

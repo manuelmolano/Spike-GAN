@@ -26,6 +26,6 @@ python3.5 main_conv.py --is_train --architecture='conv' --dataset='uniform' --nu
 ```
 
 ## Authors
-
+* [Manuel Molano](https://github.com/manuelmolano).
 * [Arno Onken](https://github.com/asnelt).
 * [Eugenio Piasini](https://github.com/epiasini).
