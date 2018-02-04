@@ -10,11 +10,11 @@ import scipy.io as sio
 from tflib import sim_pop_activity
 
 
-def get_samples(num_bins=32, num_neurons=50, instance='1'):                        
+def get_samples(num_bins=32, num_neurons=50, instance='1', folder=''):                        
     '''
     gets original retinal data (a matlab file)
     '''
-    mat_contents = sio.loadmat('~/data/retinal_data/original_data_num_neurons_' + str(num_neurons) + '_' + instance + '.mat')   
+    mat_contents = sio.loadmat(folder+'/original_data_num_neurons_' + str(num_neurons) + '_' + instance + '.mat')   
     data = mat_contents['data']
     
     if num_bins!=1:
@@ -28,7 +28,7 @@ def get_samples(num_bins=32, num_neurons=50, instance='1'):
     return X
         
         
-def load_samples_from_k_pairwise_model(num_samples=2**13, num_bins=32, num_neurons=50, instance='1', folder='~/data/retinal data/'):
+def load_samples_from_k_pairwise_model(num_samples=2**13, num_bins=32, num_neurons=50, instance='1', folder=''):
     '''
     gets data simulated by the k-pairwise method that approximates either the retinal data (Fig. 3) or the negative correlations data (Fig. S6)
     '''
@@ -47,7 +47,7 @@ def load_samples_from_k_pairwise_model(num_samples=2**13, num_bins=32, num_neuro
     return X
    
 
-def load_samples_from_DDG_model(num_samples=2**13, num_bins=32, num_neurons=50, instance='1', folder='~/data/retinal data/'):
+def load_samples_from_DDG_model(num_samples=2**13, num_bins=32, num_neurons=50, instance='1', folder=''):
     '''
     gets data simulated by the DG method that approximates either the retinal data (Fig. 3) or the negative correlations data (Fig. S6)
     '''
