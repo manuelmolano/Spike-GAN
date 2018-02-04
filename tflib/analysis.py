@@ -4,8 +4,7 @@ Created on Fri Sep 15 14:41:38 2017
 
 @author: manuel
 """
-import sys, os
-sys.path.append('/home/manuel/improved_wgan_training/')
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
@@ -554,7 +553,6 @@ def compare_GANs(folder, name, variables_compared):
     errors_keys.append('mean')
     plt.setp(sbplt, xticks=np.arange(8), xticklabels=errors_keys)
     sbplt.set_xlim([-1,8])
-   #f.savefig('/home/manuel/improved_wgan_training/comparisons/'+name)
 
 def find_value(string, variable):
     '''

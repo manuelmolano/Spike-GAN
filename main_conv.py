@@ -238,14 +238,14 @@ def main(_):
             print(fake_samples.shape)
             analysis.triplet_corr(X=fake_samples.T, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='spikeGAN', set_size=set_size)
         ###################
-        DDG_samples = retinal_data.load_samples_from_DDG_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance, name='DDGfit_of_negative_corrs')            
+        DDG_samples = retinal_data.load_samples_from_DDG_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance, folder='~/data/negative corrs data/')            
         _,_,_,_ ,_ = analysis.get_stats(X=DDG_samples, num_neurons=FLAGS.num_neurons, num_bins= FLAGS.num_bins, folder=FLAGS.sample_dir, name='DDG', instance=FLAGS.data_instance)
         if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_DDG.npz'):
             print(DDG_samples.shape)
             analysis.triplet_corr(X=DDG_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='DDG', set_size=set_size)
         ###################
         k_pairwise_samples = retinal_data.load_samples_from_k_pairwise_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, \
-                                                                             instance=FLAGS.data_instance, folder='/home/manuel/generative-neural-models-master/k_pairwise/results_neg_corrs')    
+                                                                             instance=FLAGS.data_instance, folder='~/data/negative corrs data/')    
         _,_,_,_ ,_ = analysis.get_stats(X=k_pairwise_samples, num_neurons=FLAGS.num_neurons, num_bins= FLAGS.num_bins, folder=FLAGS.sample_dir, name='k_pairwise', instance=FLAGS.data_instance)
         if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_k_pairwise.npz'):
             print(k_pairwise_samples.shape)

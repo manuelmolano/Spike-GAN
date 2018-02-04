@@ -280,6 +280,6 @@ if __name__ == '__main__':
     shuffled_index = np.arange(32)
     np.random.shuffle(shuffled_index)
     X = get_samples(num_samples=64,num_bins=32, num_neurons=32, packets_on=True,\
-                group_size=18,firing_rates_mat=np.zeros((32,1))+0.05,shuffled_index=shuffled_index, folder='/home/manuel/improved_wgan_training/pointZeroFive40BinsFlip', noise_in_packet=0, number_of_modes=2)
+                group_size=18,firing_rates_mat=np.zeros((32,1))+0.05,shuffled_index=shuffled_index, folder='', noise_in_packet=0, number_of_modes=2)
     
 

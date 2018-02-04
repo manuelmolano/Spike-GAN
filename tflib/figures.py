@@ -1088,28 +1088,28 @@ if __name__ == '__main__':
 #    supp_fig_nearest_sample(num_neurons=50, num_bins=32, folder=folder, num_cols=10, num_rows=10)
 #    sdfsdfdfs
 #    
-#    print('supp figure with negative corrs')
-#    dataset = 'uniform'
-#    num_samples = '8192'
-#    num_neurons = '16'
-#    num_bins = '128'
-#    ref_period = '2'
-#    firing_rate = '0.25'
-#    correlation = '0.3'
-#    group_size = '2'
-#    critic_iters = '5'
-#    lambd = '10' 
-#    num_layers = '2'
-#    num_features = '128'
-#    kernel = '5'
-#    iteration = '20'
-#    sample_dir = '/home/manuel/improved_wgan_training/samples conv/' + 'dataset_' + dataset + '_num_samples_' + num_samples +\
-#          '_num_neurons_' + num_neurons + '_num_bins_' + num_bins\
-#          + '_ref_period_' + ref_period + '_firing_rate_' + firing_rate + '_correlation_' + correlation +\
-#          '_group_size_' + group_size + '_critic_iters_' + critic_iters + '_lambda_' + lambd +\
-#          '_num_layers_' + num_layers + '_num_features_' + num_features + '_kernel_' + kernel +\
-#          '_iteration_' + iteration + '/'
-#    figure_2_3(num_samples=int(num_samples), num_neurons=int(num_neurons), num_bins=int(num_bins), folder=sample_dir,folder_fc='', fig_2_or_3=3, neg_corrs=True, name='supp_negative_corrs')
+    print('supp figure with negative corrs')
+    dataset = 'uniform'
+    num_samples = '8192'
+    num_neurons = '16'
+    num_bins = '128'
+    ref_period = '2'
+    firing_rate = '0.25'
+    correlation = '0.3'
+    group_size = '2'
+    critic_iters = '5'
+    lambd = '10' 
+    num_layers = '2'
+    num_features = '128'
+    kernel = '5'
+    iteration = '20'
+    sample_dir = '/home/manuel/improved_wgan_training/samples conv/' + 'dataset_' + dataset + '_num_samples_' + num_samples +\
+          '_num_neurons_' + num_neurons + '_num_bins_' + num_bins\
+          + '_ref_period_' + ref_period + '_firing_rate_' + firing_rate + '_correlation_' + correlation +\
+          '_group_size_' + group_size + '_critic_iters_' + critic_iters + '_lambda_' + lambd +\
+          '_num_layers_' + num_layers + '_num_features_' + num_features + '_kernel_' + kernel +\
+          '_iteration_' + iteration + '/'
+    figure_2_3(num_samples=int(num_samples), num_neurons=int(num_neurons), num_bins=int(num_bins), folder=sample_dir,folder_fc='', fig_2_or_3=3, neg_corrs=True, name='supp_negative_corrs')
 #    #asdasd
 #    
 #    print('triplets')
