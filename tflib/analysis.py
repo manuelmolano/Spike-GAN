@@ -438,6 +438,9 @@ def evaluate_approx_distribution(X, folder, num_samples_theoretical_distr=2**15,
     
 
 def comparison_to_original_and_gt_datasets(samples, real_samples, ground_truth_samples, ground_truth_probs):
+    '''
+    auxiliary function for evaluate_approx_distribution that computes the prob in the training data set, in the ground truth dataset and in the generated dataset
+    '''
     #get freqs of simulated samples
     aux = np.unique(samples,axis=1,return_counts=True)
     sim_samples_probs = aux[1]/np.sum(aux[1])
@@ -475,6 +478,9 @@ def comparison_to_original_and_gt_datasets(samples, real_samples, ground_truth_s
     return prob_in_training_dataset, numerical_prob, sim_samples_probs        
     
 def autocorrelogram(r,lag):
+    '''
+    computes the autocorrelogram
+    '''
     #get autocorrelogram
     margin = np.zeros((r.shape[0],lag))
     #concatenate margins to then flatten the trials matrix
@@ -488,33 +494,6 @@ def autocorrelogram(r,lag):
         
     return ac    
  
-    
-def plot_samples(samples, num_neurons, folder, name):
-    num_rows = 1
-    num_cols = 1
-    samples_binnarized = (samples > np.random.random(samples.shape)).astype(float)  
-    
-    f,sbplt = plt.subplots(num_rows,num_cols,figsize=(8, 4),dpi=250)
-    
-    matplotlib.rcParams.update({'font.size': 8})
-    plt.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
-    for ind_s in range(num_rows*num_cols):
-        sample = samples[:,ind_s].reshape((num_neurons,-1))
-        sample_binnarized = samples_binnarized[:,ind_s].reshape((num_neurons,-1))
-        for ind_n in range(num_neurons):
-            sbplt.plot(sample[ind_n,:]+4*ind_n,'k')
-            #sbplt[int(np.floor(ind_s/num_rows))][ind_s%num_cols].plot(sample[ind_n,:]+4*ind_n,'k')
-            spks = np.nonzero(sample_binnarized[ind_n,:])[0]
-            for ind_spk in range(len(spks)):
-                sbplt.plot(np.ones((2,))*spks[ind_spk],4*ind_n+np.array([2.2,3.2]),'r')
-                #sbplt[int(np.floor(ind_s/num_rows))][ind_s%num_cols].plot(np.ones((2,))*spks[ind_spk],4*ind_n+np.array([2.2,3.2]),'r')
-        #sbplt.axis('off')
-        sbplt.axis('off')
-        sbplt.set_xlim(0,128)
-        sbplt.set_ylim(-1,65)
-        #sbplt[int(np.floor(ind_s/num_rows))][ind_s%num_cols].axis('off')
-    f.savefig(folder+ name + 'samples.svg',dpi=600, bbox_inches='tight')
-    plt.close(f)
     
  
 def compare_GANs(folder, name, variables_compared):
