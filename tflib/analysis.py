@@ -287,8 +287,7 @@ def triplet_corr(X, num_neurons, num_bins, folder, name, set_size=3):
     
 def evaluate_approx_distribution(X, folder, num_samples_theoretical_distr=2**15, num_bins=10, num_neurons=4, group_size=2, refr_per=2): 
     '''
-    compute spike trains spikes: spk-count mean and std, autocorrelogram and correlation mat
-    if name!='real' then it compares the above stats with the original ones 
+    compute numerical probabilities from ground truth, surrogate and generated dataset (see Fig. S1)
     
     '''
     num_samples = X.shape[1]
@@ -356,7 +355,6 @@ def evaluate_approx_distribution(X, folder, num_samples_theoretical_distr=2**15,
                 ground_truth_samples=samples_theoretical_probs, ground_truth_probs=theoretical_probs)
             
             if ind_surr==num_surr:
-                num_impossible_samples_original = np.count_nonzero(numerical_prob_aux==0)
                 assert all(freq_in_training_dataset_aux!=0)
             else:
                 freq_in_training_dataset_surrogates[counter:counter+len(freq_in_training_dataset_aux)] = freq_in_training_dataset_aux
@@ -370,7 +368,7 @@ def evaluate_approx_distribution(X, folder, num_samples_theoretical_distr=2**15,
         surr_samples_freqs = surr_samples_freqs[0:counter]
         probs = {'sim_samples_freqs':sim_samples_freqs, 'freq_in_training_dataset':freq_in_training_dataset, 'numerical_prob':numerical_prob, 'num_impossible_samples':num_impossible_samples,\
                 'surr_samples_freqs':surr_samples_freqs, 'freq_in_training_dataset_surrogates':freq_in_training_dataset_surrogates, 'numerical_prob_surrogates': numerical_prob_surrogates,\
-                'num_impossible_samples_surrogates': num_impossible_samples_surrogates}#, 'num_impossible_samples_original':num_impossible_samples_original}
+                'num_impossible_samples_surrogates': num_impossible_samples_surrogates}
         
         np.savez(folder+'/probs_ns_' + str(num_samples) + '_ns_gt_' + str(num_samples_theoretical_distr) + '.npz',**probs)
         
@@ -382,26 +380,7 @@ def evaluate_approx_distribution(X, folder, num_samples_theoretical_distr=2**15,
     surr_samples_freqs = data['surr_samples_freqs']
     num_impossible_samples = data['num_impossible_samples']
     
-    # theoretical probabilities of "possible" samples in both the original and the generated data.
-    # Note that all empirical frequencies and theoretical probabilities are always reported for the generated set (or the surrogate set below). In other words, there are no zeroes in sim_samples_freqs or in surr_samples_freqs.
-    #possible_in_gen_and_orig = (data_small['numerical_prob']>0) & (data_small['freq_in_training_dataset']>0)
-    #prob_log_possible_in_gen_and_orig = np.log10(data_small['numerical_prob'][possible_in_gen_and_orig])
-    
-    # empirical probabilities of "possible" samples in original & generated wrt the original data
-    #freq_log_possible_in_gen_and_orig_orig = np.log10(data_small['freq_in_training_dataset'][possible_in_gen_and_orig])
-    
-    # theoretical probabilities and empirical probabilities of "possible" samples in the generated data, wrt the generated data
-    #freq_log_possible_in_gen_and_orig_gen = np.log10(data_small['sim_samples_freqs'][possible_in_gen_and_orig])
-    
-    # theoretical probabilities and empirical probabilities of "possible" samples *not present* the original, ground-truth data, but present in the surrogate data
-    #possible_in_surrogate_and_not_in_orig = (numerical_prob_surrogates>0) & (freq_in_training_dataset_surrogates==0)
-    #prob_log_possible_and_not_in_orig_surr = np.log10(numerical_prob_surrogates[possible_in_surrogate_and_not_in_orig])
-    #freq_log_possible_and_not_in_orig_surr = np.log10(surr_samples_freqs[possible_in_surrogate_and_not_in_orig])
-    
-    # theoretical probabilities and empirical probabilities of "possible" samples *not present* the original, ground-truth data, but present in the generated data
-    #possible_in_generated_and_not_in_orig = (data_large['numerical_prob']>0) & (data_large['freq_in_training_dataset']==0)
-    #prob_log_possible_and_not_in_orig_gen = np.log10(data_large['numerical_prob'][possible_in_generated_and_not_in_orig])
-    #freq_log_possible_and_not_in_orig_gen = np.log10(data_large['sim_samples_freqs'][possible_in_generated_and_not_in_orig])
+  
     
     # preprocess data
     # theoretical probabilities of "possible" samples in both the original and the generated data.
@@ -417,17 +396,7 @@ def evaluate_approx_distribution(X, folder, num_samples_theoretical_distr=2**15,
     
     #empirical probabilities of "possible" samples in the surr data, wrt the surr data
     freq_log_possible_in_surr_wrt_surr = np.log10(data['surr_samples_freqs'][possible_in_surr])
-    
-    # theoretical probabilities and empirical probabilities of "possible" samples *not present* the original, ground-truth data, but present in the surrogate data
-    possible_in_surrogate_and_not_in_orig = (numerical_prob_surrogates>0) & (freq_in_training_dataset_surrogates==0)
-    prob_log_possible_and_not_in_orig_surr = np.log10(numerical_prob_surrogates[possible_in_surrogate_and_not_in_orig])
-    freq_log_possible_and_not_in_orig_surr = np.log10(surr_samples_freqs[possible_in_surrogate_and_not_in_orig])
-    
-    # theoretical probabilities and empirical probabilities of "possible" samples *not present* the original, ground-truth data, but present in the generated data
-    possible_in_generated_and_not_in_orig = (data['numerical_prob']>0) & (data['freq_in_training_dataset']==0)
-    prob_log_possible_and_not_in_orig_gen = np.log10(data['numerical_prob'][possible_in_generated_and_not_in_orig])
-    freq_log_possible_and_not_in_orig_gen = np.log10(data['sim_samples_freqs'][possible_in_generated_and_not_in_orig])
-    
+            
     #figure
     print('plotting probs')
     fig, ax = plt.subplots(figsize=(5,5), nrows=1, ncols=1)
@@ -445,44 +414,7 @@ def evaluate_approx_distribution(X, folder, num_samples_theoretical_distr=2**15,
     ax.set_ylim((-6.6,-4.5))
     ax.set_ylabel('log numerical probability',fontsize=10)
     ax.set_xlabel('log probability in surrogate and generated distr.',fontsize=10)
-    # subsample data to speed up plotting (set subsample=False to skip)
-#    subsample = False
-#    n_samples = 100
-#    if subsample:
-#        r_surr = np.random.choice(np.arange(freq_log_possible_and_not_in_orig_surr.size), n_samples, replace=False)
-#        r_gen = np.random.choice(np.arange(freq_log_possible_and_not_in_orig_gen.size), n_samples, replace=False)
-#    else:
-#        r_surr = np.arange(freq_log_possible_and_not_in_orig_surr.size)
-#        r_gen = np.arange(freq_log_possible_and_not_in_orig_gen.size)
-#    
-#    sns.kdeplot(data=freq_log_possible_and_not_in_orig_surr[r_surr],
-#                data2=prob_log_possible_and_not_in_orig_surr[r_surr],
-#                ax=ax[0,1], n_levels=10, bw=(0.1,0.1), shade=True, cmap="inferno")
-#    ax[0,1].plot([-6.65,-4.5], [-6.65,-4.5], color='#d8dcd6', linewidth=1)
-#    sns.kdeplot(data=freq_log_possible_and_not_in_orig_gen[r_gen],
-#                data2=prob_log_possible_and_not_in_orig_gen[r_gen],
-#                ax=ax[0,1], n_levels=10, bw=(0.1,0.1), shade=False, cmap='Blues_r')
-#    
-    
-#    sns.kdeplot(data=num_impossible_samples_surrogates, ax=ax[0,2], shade=True, color=(0.85033448673587075, 0.14686658977316416, 0.13633217993079583))
-#    sns.kdeplot(data=num_impossible_samples, ax=ax[0,2], shade=True, color=(0.1791464821222607, 0.49287197231833907, 0.7354248366013072))
-#    ax[0,2].set_xlabel('number of samples with zero theor. prob.')
-#    ax[0,2].set_ylabel('frequency')
-#    ax[0,2].set_ylim([0, 0.08])
-    
-    
-#    for a in ax[:,0:1].flat:
-##        a.set_facecolor('black')
-#        a.set_xlim((-6.65,-4.5))
-#        a.set_ylim((-6.65,-4.5))
-#        a.set_xlabel('log empirical probability')
-#        a.set_ylabel('log theoretical probability')
-#        
-#    margin = 0.03
-#    font_size = 14
-#    for k,(a,name) in enumerate(zip(ax.flat, 'A')):
-#        points = a.get_position().get_points()
-#        plt.text(points[0][0]-(3-k)*margin, points[1][1]+margin, name, fontsize=font_size, transform=fig.transFigure)
+
         
     plt.tight_layout()
     fig.savefig(folder+'empirical_theoretical_probs.pdf')
