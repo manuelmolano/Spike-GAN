@@ -497,6 +497,9 @@ def autocorrelogram(r,lag):
     
  
 def compare_GANs(folder, name, variables_compared):
+    '''
+    compares the results from different Spike-GAN architectures
+    '''
     variables = {}
     
     folders = glob.glob(folder+name)
@@ -542,7 +545,6 @@ def compare_GANs(folder, name, variables_compared):
     f,sbplt = plt.subplots(num_rows,num_cols,figsize=(10, 8),dpi=250)    
     matplotlib.rcParams.update({'font.size': 8})
     plt.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
-    #print(all_errors_mean.shape)
     for ind_exp in range(all_errors_mean.shape[0]):
         
         sbplt.errorbar(np.arange(8), all_errors_mean[ind_exp,:], yerr=all_errors_std[ind_exp,:])
@@ -555,7 +557,9 @@ def compare_GANs(folder, name, variables_compared):
    #f.savefig('/home/manuel/improved_wgan_training/comparisons/'+name)
 
 def find_value(string, variable):
-    #find value in a string of a network parameter (e.g. num_layers)
+    '''
+    finds a value in a string of a network parameter (e.g. num_layers)
+    '''
     index1 = string.find(variable)+len(variable)+1
     if index1==len(variable):
         return np.nan
@@ -570,7 +574,9 @@ def find_value(string, variable):
     return value
 
 def find_latest_file(files,name):
-    #if the training has not finished, it will find the file corresponding to the latest training stage
+    '''
+    if the training has not finished, it will find the file corresponding to the latest training stage
+    '''
     maximo = 0
     for ind in range(len(files)):
         file = files[ind]
@@ -581,7 +587,9 @@ def find_latest_file(files,name):
 
 
 def merge_iterations(mat,parameters,leyenda):
-    #merges rows in mat that have equal parameters
+    '''
+    merges rows in mat that have equal parameters
+    '''
     unique_param = np.unique(parameters, axis=0)
     mean_mat = np.zeros((unique_param.shape[0],mat.shape[1]))
     std_mat = np.zeros((unique_param.shape[0],mat.shape[1]))
@@ -595,6 +603,9 @@ def merge_iterations(mat,parameters,leyenda):
 
 
 def compute_num_variables(num_bins=256, num_neurons=32, num_features=128, kernel=5, num_units=490):
+    '''
+    computes num of variables for a given architecture (only for two layers)
+    '''
     num_layers = 2
     num_features *= 2
     print('conv')
@@ -605,9 +616,29 @@ def compute_num_variables(num_bins=256, num_neurons=32, num_features=128, kernel
     print(((num_neurons*num_bins*num_units) + 3*(num_units**2) + 4*(num_units) + num_units + 1) + \
           ((128*num_units) + 3*(num_units**2) + 4*(num_units) + (num_units*num_bins*num_neurons) + (num_bins*num_neurons)))
     
+ 
     
+def get_predicted_packets(folder,threshold=95):
+    '''
+    estimates the original packets associated with the dataset in folder
+    '''
+    plt.close('all')
+    real_data = np.load(folder + '/stats_real.npz')
+    stimulus_id = np.load(folder + '/stim.npz')['stimulus']
+    importance_info = np.load(folder + '/importance_vectors_1_8_8000.npz')
+    grads = importance_info['grad_maps']
+    num_samples = grads.shape[0]
+    num_neurons = grads.shape[1]
+    num_bins = grads.shape[2]
+    samples = importance_info['samples']
+    
+    stimulus_id = stimulus_id[0:num_samples]
+    find_packets(real_data,grads,samples,num_neurons, num_bins, folder, num_samples, stimulus_id, threshold_prct=threshold)
     
 def find_packets(grad_maps,samples,num_neurons, num_bins, folder, num_samples, threshold_prct=95, plot_fig=True):
+    '''
+    auxiliary function of get_predicted_packets. Thresholds, aligns and averages importance maps to estimate the original activity packets (Fig. S2)
+    '''
     if plot_fig:
         index = np.arange(num_neurons)#np.argsort(original_dataset['shuffled_index'])#
         sim_pop_activity.plot_samples(grad_maps.reshape((grad_maps.shape[0],grad_maps.shape[1]*grad_maps.shape[2])).T, num_neurons, folder, 'grad_maps', index=index)
@@ -633,22 +664,13 @@ def find_packets(grad_maps,samples,num_neurons, num_bins, folder, num_samples, t
    
     return predicted_packets
 
-def get_predicted_packets(folder,threshold=95):
-    plt.close('all')
-    real_data = np.load(folder + '/stats_real.npz')
-    stimulus_id = np.load(folder + '/stim.npz')['stimulus']
-    importance_info = np.load(folder + '/importance_vectors_1_8_8000.npz')
-    grads = importance_info['grad_maps']
-    num_samples = grads.shape[0]
-    num_neurons = grads.shape[1]
-    num_bins = grads.shape[2]
-    samples = importance_info['samples']
-    
-    stimulus_id = stimulus_id[0:num_samples]
-    find_packets(real_data,grads,samples,num_neurons, num_bins, folder, num_samples, stimulus_id, threshold_prct=threshold)
+
 
 
 def nearest_sample(X_real, fake_samples, num_neurons, num_bins, folder='', name='', num_samples=2**13):
+    '''
+    for each sample in fake_samples finds the most similar sample in X_real (if fake_samples and X_real are equal, it finds the closest sample excluding the sample itself)
+    '''
     assert X_real.shape[0]==fake_samples.shape[0]
     
     if np.all(X_real.shape==fake_samples.shape):
@@ -673,54 +695,4 @@ def nearest_sample(X_real, fake_samples, num_neurons, num_bins, folder='', name=
     figures.nearest_sample(num_neurons, num_bins, folder, name)   
     
         
-
-if __name__ == '__main__':
-    #samples = retinal_data.get_samples(num_bins=32, num_neurons=50, instance='1')
-    real_data = np.load('/home/manuel/improved_wgan_training/samples conv/dataset_uniform_num_samples_8192_num_neurons_32_num_bins_128_ref_period_2_firing_rate_0.25_correlation_0.3_group_size_4_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/stats_real.npz')
-    samples = real_data['samples']
-    fake_samples = np.load('/home/manuel/improved_wgan_training/samples conv/dataset_uniform_num_samples_8192_num_neurons_32_num_bins_128_ref_period_2_firing_rate_0.25_correlation_0.3_group_size_4_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/samples_fake.npz')
-    fake_samples = fake_samples['samples']
-    closest_sample = nearest_sample(samples, samples, 32, 128, folder='/home/manuel/improved_wgan_training/samples conv/dataset_uniform_num_samples_8192_num_neurons_32_num_bins_128_ref_period_2_firing_rate_0.25_correlation_0.3_group_size_4_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/', name='spikeGAN')
     
-    
-    triplet_corr(samples, 32, 128, '/home/manuel/improved_wgan_training', 'real')
-    #asdasd
-    
-    
-    compute_num_variables(num_bins=1000, num_neurons=4, num_features=64, kernel=5, num_units=310)
-    #asdasd
-    
-    folder = '/home/manuel/improved_wgan_training/samples conv/dataset_packets_num_samples_8192_num_neurons_32_num_bins_32_packet_prob_1.0_firing_rate_0.05_group_size_18_noise_in_packet_0.0_number_of_modes_2_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/'
-    get_predicted_packets(folder,threshold=80)
-    #adasdasd
-    
-    folder = '/home/manuel/improved_wgan_training/samples conv/dataset_uniform_num_samples_8192_num_neurons_16_num_bins_128_ref_period_2_firing_rate_0.25_correlation_0.3_group_size_2_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/'
-    samples = np.load(folder + 'samples_fake.npz')['samples']
-    plot_samples(samples=samples, num_neurons=16, num_bins=128, folder=folder)
-    
-    #asdasd
-   
-    plt.close('all')
-    compare_GANs('/home/manuel/improved_wgan_training/', \
-                 'samples conv/dataset_retina_num_samples_8192_num_neurons_20_num_bins_32_critic_iters_5_lambda_10_num_layers_*_num_features_*_kernel_*_iteration_*',\
-                 ['num_layers','kernel','num_features'])
-    #asdasd
-    
-    group_size = 2
-    num_neurons = 16
-    num_bins = 32
-    correlation = 0.3
-    firing_rate = 0.25
-    sample_dir = '/home/manuel/improved_wgan_training/figure 1/'
-    ref_period = 2
-    num_samples = 64
-    shuffled_index = np.arange(num_neurons)
-    np.random.shuffle(shuffled_index)
-    firing_rates_mat = firing_rate+2*(np.random.random(int(num_neurons/group_size),)-0.5)*firing_rate/2    
-    correlations_mat = correlation+2*(np.random.random(int(num_neurons/group_size),)-0.5)*correlation/2   
- 
-    real_samples = sim_pop_activity.get_samples(num_samples=num_samples, num_bins=num_bins,\
-                        num_neurons=num_neurons, correlations_mat=correlations_mat, group_size=group_size, shuffled_index=shuffled_index,\
-                        refr_per=ref_period,firing_rates_mat=firing_rates_mat, folder=sample_dir)
-    
-    plot_samples(real_samples, num_neurons, num_bins, sample_dir)
