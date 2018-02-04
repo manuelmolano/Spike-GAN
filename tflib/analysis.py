@@ -195,6 +195,9 @@ def get_stats(X, num_neurons, num_bins, folder, name, firing_rate_mat=[],correla
     
 
 def get_stats_aux(X, num_neurons, num_bins):
+    '''
+    auxiliary function of get_stats, computes the covariance, k-probabilities, average firing rates, autocorrelogram and lag-covariances
+    '''
     lag = 10
     num_samples = X.shape[1]
     spike_count = np.zeros((num_neurons,num_samples))
@@ -236,8 +239,7 @@ def get_stats_aux(X, num_neurons, num_bins):
 
 def triplet_corr(X, num_neurons, num_bins, folder, name, set_size=3): 
     '''
-    compute spike trains spikes: spk-count mean and std, autocorrelogram and correlation mat
-    if name!='real' then it compares the above stats with the original ones 
+    computes correlations among triplets of neurons
     
     '''
     num_samples = X.shape[1]
@@ -285,7 +287,7 @@ def triplet_corr(X, num_neurons, num_bins, folder, name, set_size=3):
     
 
 def get_num_probs_for_generated_dataset(X, folder, num_samples_theoretical_distr=2**15, num_bins=10, num_neurons=4, group_size=2, refr_per=2, instance=1): 
-  
+    
     
     num_samples = 8000
     #get freqs of real samples

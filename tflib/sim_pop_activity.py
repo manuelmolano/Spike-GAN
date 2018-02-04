@@ -83,7 +83,7 @@ def spike_train_packets(num_bins=32, num_neurons=16, group_size=4, prob_packets=
    
 def noisy_packet(size,noise,prob=1):
     '''
-    Introduces some jitter in the spikes forming the packet
+    Introduces jitter in the spikes forming the packet
     '''
     packet = np.zeros((size,size))
     for ind in range(size):
@@ -94,6 +94,9 @@ def noisy_packet(size,noise,prob=1):
 
 def spike_train_transient_packets(num_samples=2**13, num_bins=32, num_neurons=16, group_size=4, prob_packets=0.02,\
                                   firing_rates_mat=np.zeros((16,1))+0.25, refr_per=2, shuffled_index=np.arange(32), limits=[16,32], groups=[1], folder='', save_packet=False, noise=1):
+    '''
+    Produces a set of activity patterns with only a set of packets types (specified by groups) and during an specific time window (specified by limits). This dataset is used to produce Fig. 4.
+    '''
     already_plot = 0
     X = np.zeros((num_neurons*num_bins,num_samples))
     for ind in range(num_samples):
@@ -136,6 +139,9 @@ def spike_train_transient_packets(num_samples=2**13, num_bins=32, num_neurons=16
 
 
 def plot_samples(X, num_neurons, folder, name, index=[]):
+    '''
+    plots num1*num2 samples in a num1xnum2 grid.
+    '''
     my_cmap = plt.cm.gray
     num1 = 8
     num2 = 8
@@ -155,7 +161,10 @@ def plot_samples(X, num_neurons, folder, name, index=[]):
     plt.close(f) 
     
 def get_samples(num_samples=2**13,num_bins=64, num_neurons=32, correlations_mat=np.zeros((16,))+0.5, packets_on=False,\
-                group_size=2,refr_per=2,firing_rates_mat=np.zeros((16,))+0.2, prob_packets=0.05, shuffled_index=np.arange(32), folder='', noise_in_packet=1, number_of_modes=1):                        
+                group_size=2,refr_per=2,firing_rates_mat=np.zeros((16,))+0.2, prob_packets=0.05, shuffled_index=np.arange(32), folder='', noise_in_packet=1, number_of_modes=1):  
+    '''
+    produces a dataset (training or dev) presenting the required characteristics (number of bins, correlations, refractory period, packet/non-packet, etc)
+    '''                      
     num_samples_plot = 64
     X = np.zeros((num_neurons*num_bins,num_samples))
     stimulus = np.zeros((num_samples,))
@@ -188,6 +197,9 @@ def get_samples(num_samples=2**13,num_bins=64, num_neurons=32, correlations_mat=
 
 def get_aproximate_probs(num_samples=2**13,num_bins=64, num_neurons=32, correlations_mat=np.zeros((16,))+0.5,\
                         group_size=2,refr_per=2,firing_rates_mat=np.zeros((16,))+0.2):
+    '''
+    compute the non-normalized probability distribution underlying a dataset presenting the required characteristics (number of bins, correlations, refractory period, packet/non-packet, etc)
+    '''
     X = np.zeros((num_neurons*num_bins,num_samples))
     start_time = time.time()
     for ind in range(num_samples):
@@ -206,6 +218,9 @@ def get_aproximate_probs(num_samples=2**13,num_bins=64, num_neurons=32, correlat
     return r_unique
  
 def refractory_period_hard(refr_per, r, firing_rate):
+    '''
+    imposes a hard refractory period: no spikes can happen during a time specified by refr_per after a spike
+    '''
     #print('imposing refractory period of ' + str(refr_per))    
     margin_length = 2*np.shape(r)[1]
     for ind_tr in range(int(np.shape(r)[0])):
@@ -229,6 +244,9 @@ def refractory_period_hard(refr_per, r, firing_rate):
     return r
     
 def refractory_period(refr_per, r, firing_rate):
+    '''
+    imposes a soft refractory period: the probability of spikes follows 1-exp(-(x/(sigma)^2)) after a spike, where x is the time after the occurence of a spike and sigma=refr_per/1.5
+    '''
     sigma = refr_per/1.5#np.sqrt(refr_per)
     margin_length = 2*r.shape[1]
     for ind_tr in range(int(np.shape(r)[0])):
@@ -258,7 +276,7 @@ def refractory_period(refr_per, r, firing_rate):
     
 if __name__ == '__main__':
     plt.close('all')
-        
+    #Example: getting 64 activity patterns (32 seconds) from 32 neurons presenting two types of packet activity, both involving 18 neurons (Fig. S2)
     shuffled_index = np.arange(32)
     np.random.shuffle(shuffled_index)
     X = get_samples(num_samples=64,num_bins=32, num_neurons=32, packets_on=True,\
