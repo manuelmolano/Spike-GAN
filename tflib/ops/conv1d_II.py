@@ -13,11 +13,8 @@ Created on Sun Oct  1 15:56:13 2017
 
 @author: manuel
 """
-import sys, os
-print(os.getcwd())
-sys.path.append('/home/manuel/improved_wgan_training/')
+
 import tflib as lib
-import time
 import numpy as np
 import tensorflow as tf
 
@@ -78,15 +75,3 @@ def Conv1D(name, input_dim, output_dim, filter_size, inputs, he_init=True, strid
             return result
         
 
-if __name__ == '__main__':
-    set_weights_stdev(0.02)
-    start = time.time()
-    num_features = 64
-    inputs = np.random.random(size=(64,num_features,16)).astype('float32')
-    aux = Conv1D('test', num_features, 2*num_features, 5, inputs, stride=2)
-    sess = tf.Session()
-    sess.run(tf.global_variables_initializer())
-    for ind in range(10000):
-        test2 = sess.run(aux)
-    print(time.time()-start)
-    print(test2.shape)
