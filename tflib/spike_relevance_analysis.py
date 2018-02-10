@@ -1,24 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Oct 18 16:56:25 2017
-
-@author: manuel
-"""
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
 Created on Sat Oct 14 10:13:25 2017
 
 @author: manuel
 """
-import sys, os
-print(os.getcwd())
-sys.path.append('/home/manuel/improved_wgan_training/')
 import tensorflow as tf
-
-import os
 import pprint
 from model_conv import WGAN_conv
 from tflib import sim_pop_activity, retinal_data, analysis#, visualize_filters_and_units, sim_pop_activity
@@ -36,7 +23,7 @@ wspace = 0.4   # the amount of width reserved for blank space between subplots
 hspace = 0.4   # the amount of height reserved for white space between subplots
 
 
-#parameters used for (some) figures
+#parameters used for (some) figures. The first part of the code is as in main_conv.py. 
 flags = tf.app.flags
 flags.DEFINE_string("architecture", "conv", "semi-conv (conv) or fully connected (fc)")
 flags.DEFINE_integer("num_iter", 300000, "Epoch to train [50]")
@@ -230,19 +217,6 @@ def main(_):
         np.savez(FLAGS.sample_dir+'importance_vectors_'+str(step)+'_'+str(pattern_size)+'_'+str(num_samples)+'.npz',**importance_vectors)
  
 
-
-def spikes_relevance(sample, wgan, sess):
-    sample = sample.reshape((sample.shape[0],1))
-    score = wgan.get_critics_output(np.concatenate((sample,sample),axis=1))[0].eval(session=sess)
-    spikes = np.nonzero(sample)[0]
-    grad = np.zeros((sample.shape[0],))
-    for ind_spk in range(len(spikes)):
-        aux_sample = sample.copy()
-        aux_sample[spikes[ind_spk]] = 0
-        aux = wgan.get_critics_output(np.concatenate((aux_sample,aux_sample),axis=1))[0].eval(session=sess) - score
-        grad[spikes[ind_spk]] = aux
-        
-    return grad
         
 def patterns_relevance(sample_original, num_neurons, score, inputs, sess, pattern_size, times, shuffle=False):
     #start_time = time.time()

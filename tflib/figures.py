@@ -363,7 +363,7 @@ def figure_2_3(num_samples, num_neurons, num_bins, folder, folder_fc, fig_2_or_3
     plt.close(f)
     return points_colorbar, cbaxes, map_aux, maximo, minimo
 
-def figure_4(num_samples, num_neurons, num_bins, folder, num_rows=1, sample_dir = '', main_folder=''):
+def figure_4(num_samples, num_neurons, num_bins, folder, num_rows=1, main_folder=''):
     '''
     produces figure 4 (importance maps) and S8 (more importance maps)
     '''
@@ -462,10 +462,10 @@ def figure_4(num_samples, num_neurons, num_bins, folder, num_rows=1, sample_dir 
         plt.title('importance of different neurons')
         plt.xlim(-1,num_neurons+1)
         plt.text(0.55,reference-0.025, 'E', fontsize=14, transform=plt.gcf().transFigure)
-        f.savefig(sample_dir+'figure_4_reduced_1_8_8000.svg',dpi=600, bbox_inches='tight')
+        f.savefig(folder+'figure_4_reduced_1_8_8000.svg',dpi=600, bbox_inches='tight')
         f.savefig(main_folder + '/figures paper/figure_4_1_8_8000.svg',dpi=600, bbox_inches='tight')
     else:
-        f.savefig(sample_dir+'figure_4_many_samples_1_8_8000.svg',dpi=600, bbox_inches='tight')
+        f.savefig(folder+'figure_4_many_samples_1_8_8000.svg',dpi=600, bbox_inches='tight')
         f.savefig(main_folder+'/figures paper/figure_4_many_samples_1_8_8000.svg',dpi=600, bbox_inches='tight')
     plt.close(f)
 
@@ -484,7 +484,7 @@ def figure_4(num_samples, num_neurons, num_bins, folder, num_rows=1, sample_dir 
     plt.title('activity of different neurons')
     plt.xlim(-1,num_neurons+1)
     plt.text(0.55,reference-0.025, 'E', fontsize=14, transform=plt.gcf().transFigure)
-    f.savefig(sample_dir+'average_activity_1_8_8000.svg',dpi=600, bbox_inches='tight')
+    f.savefig(folder+'average_activity_1_8_8000.svg',dpi=600, bbox_inches='tight')
 
 def figure_supp_using_imp_maps(folder, num_samples, name='', noise=0, main_folder=''):
     '''
