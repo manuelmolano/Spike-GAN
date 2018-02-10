@@ -160,22 +160,12 @@ def main(_):
         
         inputs = tf.placeholder(tf.float32, name='inputs_to_discriminator', shape=[None, FLAGS.num_neurons*FLAGS.num_bins]) 
         score = wgan.get_critics_output(inputs)
-        #real samples    
-        f1,sbplt1 = plt.subplots(num1,num2,figsize=(8, 8),dpi=250)
-        matplotlib.rcParams.update({'font.size': 8})
-        plt.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
-        f2,sbplt2 = plt.subplots(num1,num2,figsize=(8, 8),dpi=250)
-        matplotlib.rcParams.update({'font.size': 8})
-        plt.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
-        f3,sbplt3 = plt.subplots(num1,num2,figsize=(8, 8),dpi=250)
-        matplotlib.rcParams.update({'font.size': 8})
-        plt.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
+        
            
         step = FLAGS.step
         pattern_size = FLAGS.pattern_size
         times = step*np.arange(int(FLAGS.num_bins/step))
         times = np.delete(times,np.nonzero(times>FLAGS.num_bins-pattern_size))
-        #print(times)
         importance_time_vector = np.zeros((num_samples,FLAGS.num_bins))
         importance_neuron_vector = np.zeros((num_samples,FLAGS.num_neurons))
         grad_maps = np.zeros((num_samples,FLAGS.num_neurons,FLAGS.num_bins))
@@ -187,17 +177,18 @@ def main(_):
         for i in range(num_samples):
             sample = samples[i,:]
             time0 = time.time()
+            #get importance map for sample and compute the averages across time and space
             grad_maps[i,:,:], _,sample_diff_aux = patterns_relevance(sample, FLAGS.num_neurons, score, inputs, sess, pattern_size, times)
             time1 = time.time()
-            importance_time_vector[i,:] = np.mean(grad_maps[i,:,:],axis=0)#/max(np.mean(grads,axis=0))
-            importance_neuron_vector[i,:]  = np.mean(grad_maps[i,:,:],axis=1)#/max(np.mean(grads,axis=1))
+            importance_time_vector[i,:] = np.mean(grad_maps[i,:,:],axis=0)
+            importance_neuron_vector[i,:]  = np.mean(grad_maps[i,:,:],axis=1)
             sample_diff += sample_diff_aux
             
-            #compute surrogate data 
+            #compute surrogate data (not used in the IClR paper)
             aux,_,_ = patterns_relevance(sample, FLAGS.num_neurons, score, inputs, sess, pattern_size, times, shuffle=True)
             time1 = time.time()
-            importance_time_vector_surr[i,:] = np.mean(aux,axis=0)#/max(np.mean(grads,axis=0))
-            importance_neuron_vector_surr[i,:]  = np.mean(aux,axis=1)#/max(np.mean(grads,axis=1))
+            importance_time_vector_surr[i,:] = np.mean(aux,axis=0)
+            importance_neuron_vector_surr[i,:]  = np.mean(aux,axis=1)
             
             
             sample = sample.reshape(FLAGS.num_neurons,-1)
@@ -219,8 +210,10 @@ def main(_):
 
         
 def patterns_relevance(sample_original, num_neurons, score, inputs, sess, pattern_size, times, shuffle=False):
-    #start_time = time.time()
-    num_sh = 5
+    '''
+    shuffles specific time windows (defined by times and pattern_size) of the input pattern (sample_original) 
+    '''
+    num_sh = 5#number of times a specific shuffling will be performed
     dim = sample_original.shape[0]
     sample = sample_original.copy()
     sample[sample>1] = 1
@@ -242,32 +235,24 @@ def patterns_relevance(sample_original, num_neurons, score, inputs, sess, patter
         for ind_1 in range(times.shape[0]):
             for ind_2 in range(num_neurons):
                 aux_sample = sample.copy()
-                #you have to do this slicing like that, otherwise you will create a copy and the shuffling will not affect the original matrix
+                #do the slicing as follows, to prevent creating a copy 
                 aux_pattern = aux_sample[ind_2,times[ind_1]:times[ind_1]+pattern_size]
                 np.random.shuffle(aux_pattern.T)
                 sample_diff += aux_sample-sample
                 samples_shuffled[ind_sh,counter,:] = aux_sample.flatten()
                 counter += 1
-        #grad_test[ind_sh,:] = np.abs(score - wgan.get_critics_output(samples_shuffled[ind_sh,:,:]).eval(session=sess))
-        #aux = np.abs(score - wgan.get_critics_output(np.concatenate((samples_shuffled[ind_sh,:,:],samples_shuffled[ind_sh,:,:],samples_shuffled[ind_sh,:,:],samples_shuffled[ind_sh,:,:],\
-                                                                     #samples_shuffled[ind_sh,:,:],samples_shuffled[ind_sh,:,:],samples_shuffled[ind_sh,:,:],samples_shuffled[ind_sh,:,:],\
-                                                                     #samples_shuffled[ind_sh,:,:],samples_shuffled[ind_sh,:,:]),axis=0)).eval(session=sess))
-        #aux2 = np.abs(score - wgan.get_critics_output(samples_shuffled[ind_sh,:,:]).eval(session=sess))
-        #print(grad_test[ind_sh,:])
-        #print(aux[0:4])
-        #print(aux[4:8])
-        #print('----')
-        #assert np.all(aux[0:2]==aux2)
-    #assert np.sum(np.std(samples_shuffled[0,:,:],axis=0))!=0
-    
+       
+    #evaluate the change in the critic's output induced by the different shufflings
     aux = samples_shuffled.reshape((num_neurons*times.shape[0]*num_sh,dim))
     scores = sess.run(score, feed_dict={inputs: aux})
     grad = np.abs(score_original - scores)
     grad = grad.reshape((num_sh,num_neurons*times.shape[0]))
         
-      
+    #average across trials
     grad = np.mean(grad,axis=0)
+    #sum up the patterns weighted by the change in the critic's output
     grad_map = np.zeros(sample.shape)
+    #this will count the number of times a specific part of the patterns is added to avoid boundary artifacts
     counting_map = np.zeros(sample.shape)
     counter = 0
     for ind_1 in range(times.shape[0]):
@@ -282,18 +267,11 @@ def patterns_relevance(sample_original, num_neurons, score, inputs, sess, patter
     grad_map /= counting_map
     grad_map[counting_map==0] = 0
     
-#    print(np.unique(counting_map))
     return grad_map, grad, sample_diff 
     
 if __name__ == '__main__':
   tf.app.run()
   
-
-
-
-#[ 0.11054063  0.96706271  0.09767437  0.10173178]
-#[ 0.11054277  0.9670608   0.09767365  0.10172868]
-#[ 0.11054277  0.9670608   0.09767365  0.10172868]
 
 
 
