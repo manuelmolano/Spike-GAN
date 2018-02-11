@@ -173,21 +173,29 @@ def main(_):
         index = np.arange(FLAGS.num_neurons)
     else:
         index = np.argsort(original_dataset['shuffled_index'])
-    print('get filters -----------------------------------')
-    filters = wgan.get_filters(num_samples=64)
-    visualize_filters_and_units.plot_filters(filters, sess, FLAGS, index)
+        
+    if architecture=='conv':
+        print('get filters -----------------------------------')
+        filters = wgan.get_filters(num_samples=64)
+        visualize_filters_and_units.plot_filters(filters, sess, FLAGS, index)
     
     
     #GET GENERATED SAMPLES AND COMPUTE THEIR STATISTICS
-    real_samples = original_dataset['samples']
+    print('compute stats -----------------------------------')
+    if 'samples' not in original_dataset:
+        real_samples = retinal_data.get_samples(num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance, folder=os.getcwd()+'/data/retinal data/')
+    else:
+        real_samples = original_dataset['samples']
     sim_pop_activity.plot_samples(real_samples, FLAGS.num_neurons, FLAGS.sample_dir, 'real')
     fake_samples = wgan.get_samples(num_samples=FLAGS.num_samples)
     fake_samples = fake_samples.eval(session=sess)
     sim_pop_activity.plot_samples(fake_samples.T, FLAGS.num_neurons, FLAGS.sample_dir, 'fake')
     _,_,_,_,_ = analysis.get_stats(X=fake_samples.T, num_neurons=FLAGS.num_neurons, num_bins= FLAGS.num_bins, folder=FLAGS.sample_dir, name='fake', instance=FLAGS.data_instance)
 
+
     #EVALUATE HIGH ORDER FEATURES (only when dimensionality is low)
     if FLAGS.dataset=='uniform' and FLAGS.num_bins*FLAGS.num_neurons<40:
+        print('compute high order statistics-----------------------------------')
         num_trials = int(2**8)
         num_samples_per_trial = 2**13
         fake_samples_mat = np.zeros((num_trials*num_samples_per_trial,FLAGS.num_neurons*FLAGS.num_bins))
@@ -202,8 +210,8 @@ def main(_):
    
     #COMPARISON WITH K-PAIRWISE AND DG MODELS (only for retinal data)
     if FLAGS.dataset=='retina':
+        print('comparison with other methods -----------------------------------')
         num_samples = 100 #this is for the 'nearest sample' analysis (Fig. S5)
-        print(real_samples.shape)
         if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_real.npz'):
             analysis.triplet_corr(X=real_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='real')
         analysis.nearest_sample(X_real=real_samples, fake_samples=real_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='real', num_samples=num_samples)
@@ -230,6 +238,7 @@ def main(_):
         
     #TRIPLET ANALYSIS  
     if FLAGS.dataset=='uniform' and FLAGS.group_size==2 and FLAGS.iteration=='20' and FLAGS.num_bins==128 and FLAGS.num_neurons==16:
+        print('triplet correlations analysis -----------------------------------')
         set_size = 3
         if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_real.npz'):
             print(real_samples.shape)
