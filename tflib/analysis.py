@@ -35,7 +35,7 @@ def get_stats(X, num_neurons, num_bins, folder, name, firing_rate_mat=[],correla
         original_data = np.load(folder + '/stats_real.npz')   
         if any(k not in original_data for k in ("mean","acf","cov_mat","k_probs","lag_cov_mat","firing_average_time_course")):
             if 'samples' not in original_data:
-                samples = retinal_data.get_samples(num_bins=num_bins, num_neurons=num_neurons, instance=instance)
+                samples = retinal_data.get_samples(num_bins=num_bins, num_neurons=num_neurons, instance=instance, folder=os.getcwd()+'/data/retinal data/')
             else:
                 samples = original_data['samples']
             cov_mat_real, k_probs_real, mean_spike_count_real, autocorrelogram_mat_real, firing_average_time_course_real, lag_cov_mat_real =\

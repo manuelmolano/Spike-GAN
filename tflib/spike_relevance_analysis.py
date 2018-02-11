@@ -7,13 +7,12 @@ Created on Sat Oct 14 10:13:25 2017
 """
 import tensorflow as tf
 import pprint
+import os
+import time
 from model_conv import WGAN_conv
 from tflib import sim_pop_activity, retinal_data, analysis#, visualize_filters_and_units, sim_pop_activity
 import numpy as np
 #from utils import pp, get_samples_autocorrelogram, get_samples
-import matplotlib.pyplot as plt
-import matplotlib
-import time
 #parameters for figure
 left  = 0.125  # the left side of the subplots of the figure
 right = 0.9    # the right side of the subplots of the figure
@@ -124,11 +123,9 @@ def main(_):
         if not wgan.load(FLAGS.training_stage):
             raise Exception("[!] Train a model first, then run test mode")      
             
-        num1 = 4
-        num2 = 4
         num_samples = 8000
         if FLAGS.dataset=='retina':
-            samples = retinal_data.get_samples(num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance).T
+            samples = retinal_data.get_samples(num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance, folder=os.getcwd()+'/data/retinal data/').T
         else:
             original_dataset = np.load(FLAGS.sample_dir+ '/stats_real.npz')
             if FLAGS.number_of_modes==1:

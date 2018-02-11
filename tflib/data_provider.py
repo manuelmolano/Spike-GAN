@@ -6,8 +6,8 @@ Created on Thu Oct 19 11:44:19 2017
 @author: manuel
 """
 
-#get real samples
 
+import os
 import numpy as np
 from tflib import sim_pop_activity, retinal_data, analysis
 
@@ -68,7 +68,8 @@ def generate_spike_trains(config, recovery_dir):
                        prob_packets=config.packet_prob, shuffled_index=shuffled_index, noise_in_packet=config.noise_in_packet, number_of_modes=config.number_of_modes)
         
     elif config.dataset=='retina':
-        real_samples = retinal_data.get_samples(num_bins=config.num_bins, num_neurons=config.num_neurons, instance=config.data_instance)
+        dirpath = os.getcwd()
+        real_samples = retinal_data.get_samples(num_bins=config.num_bins, num_neurons=config.num_neurons, instance=config.data_instance, folder=dirpath+'/data/retinal data/')
         #save original statistics
         analysis.get_stats(X=real_samples, num_neurons=config.num_neurons, num_bins=config.num_bins, folder=config.sample_dir, name='real',instance=config.data_instance)
         dev_samples = []

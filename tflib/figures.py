@@ -15,7 +15,7 @@ Created on Mon Oct 23 12:13:56 2017
 
 @author: manuel
 """
-
+import os
 import numpy as np
 from tflib import  retinal_data, analysis
 import matplotlib.pyplot as plt
@@ -1137,6 +1137,7 @@ def main(main_folder):
     
 
 if __name__ == '__main__':
-   main('/home/manuel/Spike-GAN/') 
+   dirpath = '/home/manuel/Spike-GAN/'#os.getcwd()
+   main(dirpath) 
     
  
