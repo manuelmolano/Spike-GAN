@@ -236,52 +236,6 @@ def get_stats_aux(X, num_neurons, num_bins):
 
 
 
-def triplet_corr(X, num_neurons, num_bins, folder, name, set_size=3): 
-    '''
-    computes correlations among triplets of neurons
-    
-    '''
-    num_samples = X.shape[1]
-    X_binnarized = (X > np.random.random(X.shape)).astype(float)   
-       
-    
-    X_binnarized = np.reshape(X_binnarized,newshape=(num_neurons,num_bins,num_samples))
-    X_binnarized = np.transpose(X_binnarized,axes=(0,2,1))
-    X_binnarized = np.reshape(X_binnarized,newshape=(num_neurons,num_bins*num_samples))
-    
-    
-    X_binnarized -= np.mean(X_binnarized,axis=1).reshape((num_neurons,1))
-    
-    assert np.all(np.abs(np.mean(X_binnarized,axis=1))<0.0000000000001)
-    
-    if name!='real':
-        corrs_real = np.load(folder + '/triplet_corr_real.npz')     
-
-    
-    combinations = list(itertools.combinations(range(num_neurons),set_size))
-    tr_corrs = np.zeros((len(combinations),1))
-    for ind_comb in range(len(combinations)):
-        if ind_comb%100==0:
-            time0 = time.time()
-        prod = 1
-        for ind in range(set_size):
-            prod *= X_binnarized[combinations[ind_comb][ind],:]
-        tr_corrs[ind_comb] = np.mean(prod)
-        if ind_comb%100==0:
-            print(name + ' ' + str(ind_comb) + ' out of ' + str(len(combinations)) + ' time ' + str(time.time() - time0))
-    plt.hist(tr_corrs)
-    data = {'tr_corrs':tr_corrs}
-    np.savez(folder + '/triplet_corr_'+name+'.npz', **data)
-    
-    if name!='real':
-        f = plt.figure(figsize=(8, 8),dpi=250)
-        maximo = np.max(np.array([np.max(corrs_real['tr_corrs']),np.max(tr_corrs)]))
-        minimo = np.min(np.array([np.min(corrs_real['tr_corrs']),np.min(tr_corrs)]))
-        plt.plot([minimo,maximo],[minimo,maximo],'k')
-        plt.plot(corrs_real['tr_corrs'],tr_corrs,'.')
-        f.savefig(folder + '/triplet_corr_'+name+'.svg',dpi=600, bbox_inches='tight')
-        plt.close(f)
-    
     
     
 def evaluate_approx_distribution(X, folder, num_samples_theoretical_distr=2**15, num_bins=10, num_neurons=4, group_size=2, refr_per=2): 
@@ -675,13 +629,10 @@ def nearest_sample(X_real, fake_samples, num_neurons, num_bins, folder='', name=
         remove_sample = np.all(X_real==fake_samples)
     else:
         remove_sample = False
-    print(remove_sample)
     fake_samples = (fake_samples > np.random.random(fake_samples.shape)).astype(float)   
     num_samples = np.min([num_samples,fake_samples.shape[1]])
     closest_sample = np.zeros((num_samples,))
     for ind_s in range(num_samples):
-        if ind_s%100==0:
-            print(ind_s)
         sample = fake_samples[:,ind_s]
         differences = np.sum(np.abs(X_real-sample.reshape(fake_samples.shape[0],1)),axis=0)
         if remove_sample:

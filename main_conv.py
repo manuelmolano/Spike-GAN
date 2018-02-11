@@ -174,7 +174,7 @@ def main(_):
     else:
         index = np.argsort(original_dataset['shuffled_index'])
         
-    if architecture=='conv':
+    if FLAGS.architecture=='conv':
         print('get filters -----------------------------------')
         filters = wgan.get_filters(num_samples=64)
         visualize_filters_and_units.plot_filters(filters, sess, FLAGS, index)
@@ -210,59 +210,25 @@ def main(_):
    
     #COMPARISON WITH K-PAIRWISE AND DG MODELS (only for retinal data)
     if FLAGS.dataset=='retina':
-        print('comparison with other methods -----------------------------------')
+        print('nearest sample analysis -----------------------------------')
         num_samples = 100 #this is for the 'nearest sample' analysis (Fig. S5)
-        if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_real.npz'):
-            analysis.triplet_corr(X=real_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='real')
         analysis.nearest_sample(X_real=real_samples, fake_samples=real_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='real', num_samples=num_samples)
         ###################
         print(fake_samples.shape)
-        if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_spikeGAN.npz'):
-            analysis.triplet_corr(X=fake_samples.T, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='spikeGAN')
         analysis.nearest_sample(X_real=real_samples, fake_samples=fake_samples.T, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='spikeGAN', num_samples=num_samples)
         ###################
         k_pairwise_samples = retinal_data.load_samples_from_k_pairwise_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance)    
         print(k_pairwise_samples.shape)
         _,_,_,_ ,_ = analysis.get_stats(X=k_pairwise_samples, num_neurons=FLAGS.num_neurons, num_bins= FLAGS.num_bins, folder=FLAGS.sample_dir, name='k_pairwise', instance=FLAGS.data_instance)
-        if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_k_pairwise.npz'):
-            analysis.triplet_corr(X=k_pairwise_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='k_pairwise')
         analysis.nearest_sample(X_real=real_samples, fake_samples=k_pairwise_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='k_pairwise', num_samples=num_samples)
         ###################
         DDG_samples = retinal_data.load_samples_from_DDG_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance)    
         print(DDG_samples.shape)
         _,_,_,_ ,_ = analysis.get_stats(X=DDG_samples, num_neurons=FLAGS.num_neurons, num_bins= FLAGS.num_bins, folder=FLAGS.sample_dir, name='DDG', instance=FLAGS.data_instance)
-        if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_DDG.npz'):
-            analysis.triplet_corr(X=DDG_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='DDG')
         analysis.nearest_sample(X_real=real_samples, fake_samples=DDG_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='DDG', num_samples=num_samples)
         
         
-    #TRIPLET ANALYSIS  
-    if FLAGS.dataset=='uniform' and FLAGS.group_size==2 and FLAGS.iteration=='20' and FLAGS.num_bins==128 and FLAGS.num_neurons==16:
-        print('triplet correlations analysis -----------------------------------')
-        set_size = 3
-        if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_real.npz'):
-            print(real_samples.shape)
-            analysis.triplet_corr(X=real_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='real', set_size=set_size)
-        if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_spikeGAN.npz'):
-            print(fake_samples.shape)
-            analysis.triplet_corr(X=fake_samples.T, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='spikeGAN', set_size=set_size)
-        ###################
-        DDG_samples = retinal_data.load_samples_from_DDG_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance, folder='~/data/negative corrs data/')            
-        _,_,_,_ ,_ = analysis.get_stats(X=DDG_samples, num_neurons=FLAGS.num_neurons, num_bins= FLAGS.num_bins, folder=FLAGS.sample_dir, name='DDG', instance=FLAGS.data_instance)
-        if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_DDG.npz'):
-            print(DDG_samples.shape)
-            analysis.triplet_corr(X=DDG_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='DDG', set_size=set_size)
-        ###################
-        k_pairwise_samples = retinal_data.load_samples_from_k_pairwise_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, \
-                                                                             instance=FLAGS.data_instance, folder='~/data/negative corrs data/')    
-        _,_,_,_ ,_ = analysis.get_stats(X=k_pairwise_samples, num_neurons=FLAGS.num_neurons, num_bins= FLAGS.num_bins, folder=FLAGS.sample_dir, name='k_pairwise', instance=FLAGS.data_instance)
-        if not os.path.exists(FLAGS.sample_dir+'/triplet_corr_k_pairwise.npz'):
-            print(k_pairwise_samples.shape)
-            analysis.triplet_corr(X=k_pairwise_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='k_pairwise', set_size=set_size)
-       
-    
-    
-
+   
     
 if __name__ == '__main__':
   tf.app.run()
