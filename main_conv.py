@@ -212,18 +212,19 @@ def main(_):
     if FLAGS.dataset=='retina':
         print('nearest sample analysis -----------------------------------')
         num_samples = 100 #this is for the 'nearest sample' analysis (Fig. S5)
+        print('real_samples')
         analysis.nearest_sample(X_real=real_samples, fake_samples=real_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='real', num_samples=num_samples)
         ###################
-        print(fake_samples.shape)
+        print('fake_samples')
         analysis.nearest_sample(X_real=real_samples, fake_samples=fake_samples.T, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='spikeGAN', num_samples=num_samples)
         ###################
-        k_pairwise_samples = retinal_data.load_samples_from_k_pairwise_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance)    
-        print(k_pairwise_samples.shape)
+        k_pairwise_samples = retinal_data.load_samples_from_k_pairwise_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance, folder=os.getcwd()+'/data/retinal data/')    
+        print('k_pairwise_samples')
         _,_,_,_ ,_ = analysis.get_stats(X=k_pairwise_samples, num_neurons=FLAGS.num_neurons, num_bins= FLAGS.num_bins, folder=FLAGS.sample_dir, name='k_pairwise', instance=FLAGS.data_instance)
         analysis.nearest_sample(X_real=real_samples, fake_samples=k_pairwise_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='k_pairwise', num_samples=num_samples)
         ###################
-        DDG_samples = retinal_data.load_samples_from_DDG_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance)    
-        print(DDG_samples.shape)
+        DDG_samples = retinal_data.load_samples_from_DDG_model(num_samples=FLAGS.num_samples, num_bins=FLAGS.num_bins, num_neurons=FLAGS.num_neurons, instance=FLAGS.data_instance, folder=os.getcwd()+'/data/retinal data/')    
+        print('DDG_samples')
         _,_,_,_ ,_ = analysis.get_stats(X=DDG_samples, num_neurons=FLAGS.num_neurons, num_bins= FLAGS.num_bins, folder=FLAGS.sample_dir, name='DDG', instance=FLAGS.data_instance)
         analysis.nearest_sample(X_real=real_samples, fake_samples=DDG_samples, num_neurons=FLAGS.num_neurons, num_bins=FLAGS.num_bins, folder=FLAGS.sample_dir, name='DDG', num_samples=num_samples)
         

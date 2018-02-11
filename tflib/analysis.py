@@ -9,10 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import glob
-from tflib import sim_pop_activity, retinal_data, figures#, data_provider
+from tflib import sim_pop_activity, retinal_data
 import time
 #from sklearn.cluster import KMeans
-import itertools
 import seaborn as sns
 #parameters for figures
 left  = 0.125  # the left side of the subplots of the figure
@@ -641,7 +640,7 @@ def nearest_sample(X_real, fake_samples, num_neurons, num_bins, folder='', name=
         
     data = {'closest_sample':closest_sample, 'samples':fake_samples}
     np.savez(folder + '/closest_sample_'+name+'.npz', **data)   
-    figures.nearest_sample(num_neurons, num_bins, folder, name)   
+   
     
         
     

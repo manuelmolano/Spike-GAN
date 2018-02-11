@@ -905,30 +905,6 @@ def ROC_curve(real_data, predicted_packets, stimulus_id,  num_neurons, num_bins,
     
     return fpr, tpr, roc_auc, all_stim, y_true
 
-def supp_fig_triplet_corrs(folder):
-    real_data = np.load(folder + '/triplet_corr_real.npz')['tr_corrs']
-    spikeGAN = np.load(folder + '/triplet_corr_spikeGAN.npz')['tr_corrs']
-    k_pairwise = np.load(folder + '/triplet_corr_k_pairwise.npz')['tr_corrs']
-    DDG = np.load(folder + '/triplet_corr_DDG.npz')['tr_corrs']
-    plt.figure(figsize=(10, 6),dpi=250)
-    matplotlib.rcParams.update({'font.size': 8})
-    plt.subplots_adjust(left=left, bottom=bottom, right=right, top=top, wspace=wspace, hspace=hspace)
-    
-    maximo = np.max(np.array([np.max(real_data),np.max(spikeGAN),np.max(k_pairwise)]))
-    minimo = np.min(np.array([np.min(real_data),np.min(spikeGAN),np.min(k_pairwise)]))
-   
-    plt.plot([minimo,maximo],[minimo,maximo],colors[0])
-    plt.plot(real_data,k_pairwise,'x'+colors[1])
-    plt.plot(real_data,spikeGAN,'.'+colors[2])
-    plt.plot(real_data,DDG,'+'+colors[3])
-    plt.xlabel('triplet corrs expt')
-    plt.ylabel('triplet corrs models')   
-    plt.title('triplet correlations')
-    
-    plt.annotate('k-pairwise model',xy=(minimo,maximo-2*(maximo-minimo)/10),fontsize=8,color=colors[1])
-    plt.annotate('DG model',xy=(minimo,maximo-3*(maximo-minimo)/10),fontsize=8,color=colors[3])
-    plt.annotate('Spike-GAN',xy=(minimo,maximo-(maximo-minimo)/10),fontsize=8,color=colors[2])
-
 
 def supp_fig_nearest_sample(num_neurons, num_bins, folder, num_cols=10, num_rows=10, main_folder=''):
     '''
@@ -950,14 +926,16 @@ def supp_fig_nearest_sample(num_neurons, num_bins, folder, num_cols=10, num_rows
     f.savefig(main_folder + '/figures paper/nearest_sample_all_methods.svg',dpi=600, bbox_inches='tight')
     plt.close(f)
 
-def nearest_sample(num_neurons, num_bins, folder, name, num_cols=10, num_rows=10, points=np.array([[0.01,0.095],0,0]), save_fig=True, f=None, main_folder=''):
+def nearest_sample(num_neurons, num_bins, folder, name, num_cols=10, num_rows=10, points=np.array([[0.01,0.095],0,0]), save_fig=True, f=None, main_folder='', instance='1'):
     #original_data = np.load(folder + '/stats_real.npz') 
     aux = np.load(folder+'/closest_sample_'+name+'.npz')
     closest_sample = aux['closest_sample']
     X = aux['samples']
-    real_samples = np.load(folder+'/stats_real.npz')
-    real_samples = real_samples['samples']
-    
+    original_data = np.load(folder+'/stats_real.npz')
+    if 'samples' not in original_data:
+        real_samples = retinal_data.get_samples(num_bins=num_bins, num_neurons=num_neurons, instance=instance, folder=os.getcwd()+'/data/retinal data/')
+    else:
+        real_samples = original_data['samples']
     if save_fig:
         f = plt.figure(figsize=(8, 10),dpi=250)
         matplotlib.rcParams.update({'font.size': 8})
@@ -1007,8 +985,8 @@ def main(main_folder):
     print('nearest sample fig')
     folder = main_folder + 'samples conv/dataset_retina_num_samples_8192_num_neurons_50_num_bins_32_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_21/'
     supp_fig_nearest_sample(num_neurons=50, num_bins=32, folder=folder, num_cols=10, num_rows=10, main_folder=main_folder)
-#
-#
+
+
     print('supp figure with negative corrs')
     dataset = 'uniform'
     num_samples = '8192'
@@ -1036,7 +1014,7 @@ def main(main_folder):
    
     print('supp figure ROC curves')
     figure_supp_using_imp_maps_ROC_curves(main_folder=main_folder)
-#    
+    
     print('supp figure using importance maps with less samples')
     num_samples = 4096#1024#2048#8192#
     packet_noise = 0.0#0.5#
@@ -1052,13 +1030,13 @@ def main(main_folder):
     folder = main_folder + 'samples conv/dataset_packets_num_samples_'+str(num_samples)+'_num_neurons_32_num_bins_32_packet_prob_1.0_firing_rate_0.05_group_size_18_noise_in_packet_'+str(packet_noise)+'_number_of_modes_2_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/'    
     #num_samples = 8000
     figure_supp_using_imp_maps(folder,num_samples=num_samples, name='_packetNoise'+str(packet_noise)+'_II', noise=packet_noise, main_folder=main_folder)
-#    
+
     print('supp figure using importance maps with noisy packets')
     num_samples = 4096#1024#2048#8192#
     packet_noise = 0.5#0.5#
     folder = main_folder + 'samples conv/dataset_packets_num_samples_'+str(num_samples)+'_num_neurons_32_num_bins_32_packet_prob_1.0_firing_rate_0.05_group_size_18_noise_in_packet_'+str(packet_noise)+'_number_of_modes_2_critic_iters_5_lambda_10_num_layers_2_num_features_128_kernel_5_iteration_20/'    
-#    
-# 
+
+
     print('FIGURE 4')
     dataset = 'packets'
     num_samples = '8192'
