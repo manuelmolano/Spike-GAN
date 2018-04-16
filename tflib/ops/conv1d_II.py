@@ -60,14 +60,18 @@ def Conv1D(name, input_dim, output_dim, filter_size, inputs, he_init=True, strid
         
      
         filters = lib.param(name+'.Filters', filter_values)
-        result = tf.nn.conv1d(value=inputs, filters=filters, stride=stride, padding='SAME', data_format='NCHW')
+#        print('-------------------------------------------------------------------')        
+#        print(inputs.shape)
+        inputs = tf.transpose(inputs, [0,2,1])# name='NCHW_to_NHWC'
+        result = tf.nn.conv1d(value=inputs, filters=filters, stride=stride, padding='SAME', data_format='NWC')
 
         
         _biases = lib.param(name+'.Biases', np.zeros([output_dim], dtype='float32'))
 
        
-        result = tf.expand_dims(result, 3)
-        result = tf.nn.bias_add(result, _biases, data_format='NCHW')
+        #result = tf.expand_dims(result, 3)
+        result = tf.nn.bias_add(result, _biases, data_format='NHWC')
+        result = tf.transpose(result, [0,2,1]) #name='NHWC_to_NCHW'
         result = tf.squeeze(result)
         if save_filter:
             return result, filters

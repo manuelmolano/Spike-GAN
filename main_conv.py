@@ -48,8 +48,11 @@ flags.DEFINE_integer("num_layers", 2, "number of convolutional layers [4]")
 flags.DEFINE_integer("num_features", 4, "features in first layers [4]")
 flags.DEFINE_integer("kernel_width", 5, "width of kernel [4]")
 flags.DEFINE_integer("num_units", 512, "num units per layer in the fc GAN")
+flags.DEFINE_integer("critic_iters", 5, "number of times the discriminator will be updated")
+flags.DEFINE_float("lambd", 10, "parameter gradient penalization")
 
 #parameter set specifiying data
+flags.DEFINE_string("sample_dir", "", "where the samples will be saved. This is automatically defined below, here I just initialize the field.")
 flags.DEFINE_string("dataset", "uniform", "type of neural activity. It can be simulated  or retina")
 flags.DEFINE_string("data_instance", "1", "if data==retina, this allows chosing the data instance")
 flags.DEFINE_integer("num_samples", 2**13, "number of samples")
@@ -61,18 +64,15 @@ flags.DEFINE_integer("ref_period", 2, "minimum number of ms between spikes (if <
 flags.DEFINE_float("firing_rate", 0.25, "maximum firing rate of the simulated responses")
 flags.DEFINE_float("correlation", 0.9, "correlation between neurons")
 flags.DEFINE_integer("group_size", 4, "size of the correlated groups (e.g. 2 means pairwise correlations)")
-flags.DEFINE_integer("critic_iters", 5, "number of times the discriminator will be updated")
-flags.DEFINE_float("lambd", 10, "parameter gradient penalization")
 flags.DEFINE_float("noise_in_packet", 0, "std of gaussian noise added to packets")
 flags.DEFINE_integer("number_of_modes", 1, "[1,2] Number of different responses in the packet simulation. If =2 each type \
                      of packet will happen only once in the sample and one of two possible set of neurons will be chosen with equal prob for each packet.")
-
 
 FLAGS = flags.FLAGS
 pp = pprint.PrettyPrinter()
 def main(_):
   #print parameters
-  pp.pprint(flags.FLAGS.__flags)
+  pp.pprint(tf.app.flags.FLAGS.flag_values_dict())
   #folders
   if FLAGS.dataset=='uniform':
       if FLAGS.architecture=='fc':
@@ -160,6 +160,7 @@ def main(_):
         training_samples, dev_samples = data_provider.generate_spike_trains(FLAGS, FLAGS.recovery_dir)
         wgan.training_samples = training_samples
         wgan.dev_samples = dev_samples
+        print('data loaded')
         wgan.train(FLAGS)
     else:
         if not wgan.load(FLAGS.training_stage):

@@ -122,7 +122,7 @@ def Linear(
             )
 
             with tf.name_scope('weightnorm') as scope:
-                norms = tf.sqrt(tf.reduce_sum(tf.square(weight), reduction_indices=[0]))
+                norms = tf.sqrt(tf.reduce_sum(tf.square(weight), axis=[0]))
                 weight = weight * (target_norms / norms)
 
       
@@ -131,7 +131,7 @@ def Linear(
         else:
             reshaped_inputs = tf.reshape(inputs, [-1, input_dim])
             result = tf.matmul(reshaped_inputs, weight)
-            result = tf.reshape(result, tf.pack(tf.unpack(tf.shape(inputs))[:-1] + [output_dim]))
+            result = tf.reshape(result, tf.stack(tf.unstack(tf.shape(inputs))[:-1] + [output_dim]))
 
         if biases:
             result = tf.nn.bias_add(

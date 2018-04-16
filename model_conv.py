@@ -91,7 +91,7 @@ class WGAN_conv(object):
     interpolates = self.inputs + (alpha*differences)
     aux = self.Discriminator(interpolates)
     gradients = tf.gradients(aux, [interpolates])[0]
-    slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), reduction_indices=[1]))
+    slopes = tf.sqrt(tf.reduce_sum(tf.square(gradients), axis=[1]))
     gradient_penalty = tf.reduce_mean((slopes-1.)**2)
     self.disc_cost += self.lambd*gradient_penalty
 
