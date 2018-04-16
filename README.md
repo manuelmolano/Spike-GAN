@@ -7,7 +7,7 @@ Tensorflow implementation of Spike-GAN, which allows generating realistic patter
 ### Prerequisites
 
 * Python 3.5+
-* Tensorflow 0.12.1.
+* Tensorflow 1.7.
 * Numpy.
 * SciPy.
 * Matplotlib.
