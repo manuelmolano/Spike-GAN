@@ -61,7 +61,7 @@ class WGAN_conv(object):
     self.z_dim = z_dim #latent space dimension
     self.num_layers = num_layers
     self.width_kernel = kernel_width # in the time dimension
-    self.num_features = num_features #num features in the first layer of critic (this number will be duplicated in each succesive layer) [note: this is actually half of the number of features in the first generator layer]
+    self.num_features = num_features/2 #num features in the first layer of critic (this number will be duplicated in each succesive layer)
     #folders
     self.checkpoint_dir = checkpoint_dir
     self.sample_dir = sample_dir
