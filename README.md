@@ -41,3 +41,7 @@ python3.5 main_conv.py --is_train --architecture='conv' --dataset='uniform' --nu
 * [Manuel Molano](https://github.com/manuelmolano).
 * [Arno Onken](https://github.com/asnelt).
 * [Eugenio Piasini](https://github.com/epiasini).
+
+*This work has received funding from the European Union's Horizon 2020 research and innovation programme under the Marie Sklodowska-Curie grant agreement No 699829 (ETIC).*
+
+<img src="figs/LOGO.png " alt="ETIC" width="200px"/>
