@@ -228,9 +228,9 @@ class WGAN_conv(object):
         print(str(output.get_shape())+' input')
     for ind_l in range(self.num_layers):
         if ind_l==0:
-            output = conv1d_II.Conv1D('Discriminator.'+str(ind_l+1), self.num_neurons, num_features*2**(ind_l+1),kernel_width, output, stride=self.stride)
+            output = conv1d_II.Conv1D('Discriminator.'+str(ind_l+1), self.num_neurons, int(num_features*2**(ind_l+1)),int(kernel_width), output, stride=self.stride)
         else:
-            output = conv1d_II.Conv1D('Discriminator.'+str(ind_l+1), num_features*2**(ind_l), num_features*2**(ind_l+1), kernel_width, output, stride=self.stride)
+            output = conv1d_II.Conv1D('Discriminator.'+str(ind_l+1), int(num_features*2**(ind_l)), int(num_features*2**(ind_l+1)), int(kernel_width), output, stride=self.stride)
         output = act_funct.LeakyReLU(output)
         if print_arch:
             print(str(output.get_shape()) + ' layer '+ str(ind_l+1))
@@ -297,17 +297,17 @@ class WGAN_conv(object):
       output = linear.Linear('Generator.Input', 128,int(num_features*self.num_bins), noise)
       if print_arch:
           print(str(output.get_shape()) + ' linear projection')
-      output = tf.reshape(output, [-1, num_features*2**self.num_layers, int(self.num_bins/2**self.num_layers)])
+      output = tf.reshape(output, [-1, int(num_features*2**self.num_layers), int(self.num_bins/2**self.num_layers)])
       output = act_funct.LeakyReLU(output)
       if print_arch:
           print(str(output.get_shape()) + ' layer 1')
       for ind_l in range(self.num_layers,0,-1):
           if ind_l==1:
-              output = deconv1d_II.Deconv1D('Generator.'+str(self.num_layers-ind_l+1), num_features*2**ind_l, self.num_neurons,\
-                                            kernel_width, output, num_bins=int(2**(self.num_layers-ind_l+1)*self.num_bins/2**self.num_layers))
+              output = deconv1d_II.Deconv1D('Generator.'+str(self.num_layers-ind_l+1), int(num_features*2**ind_l), int(self.num_neurons),\
+                                            int(kernel_width), output, num_bins=int(2**(self.num_layers-ind_l+1)*self.num_bins/2**self.num_layers))
           else:
-              output = deconv1d_II.Deconv1D('Generator.'+str(self.num_layers-ind_l+1), num_features*2**ind_l, num_features*2**(ind_l-1),\
-                                            kernel_width, output, num_bins=int(2**(self.num_layers-ind_l+1)*self.num_bins/2**self.num_layers))
+              output = deconv1d_II.Deconv1D('Generator.'+str(self.num_layers-ind_l+1), int(num_features*2**ind_l), int(num_features*2**(ind_l-1)),\
+                                            int(kernel_width), output, num_bins=int(2**(self.num_layers-ind_l+1)*self.num_bins/2**self.num_layers))
           output = act_funct.LeakyReLU(output)
           if print_arch:
               print(str(output.get_shape()) + ' layer ' + str(self.num_layers-ind_l+2))
